@@ -24,12 +24,21 @@ EventHandler::EventHandler()
 
     zeit = new DieZeit(menu->getContentRect());
 
-    if(zeit->login())
+    if(zeit->getIssuesFromFile())
     {
         zeit->drawIssuesScreen();
-    }else
+    }
+    else
     {
-        Message(ICON_ERROR, "Error", "Failed to login", 600);
+        if(zeit->login())
+        {
+            zeit->drawIssuesScreen();
+            zeit->saveIssuesToFile();
+        }
+        else
+        {
+            Message(ICON_ERROR, "Error", "Failed to login", 600);
+        }
     }
     
     FullUpdate();

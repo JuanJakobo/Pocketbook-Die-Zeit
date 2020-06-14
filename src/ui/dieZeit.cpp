@@ -14,6 +14,7 @@
 #include <string>
 #include <curl/curl.h>
 #include <fstream>
+#include <sstream>
 #include <algorithm>
 
 using namespace std;
@@ -170,4 +171,47 @@ void DieZeit::drawIssuesScreen()
             issues[i].setRect(&rect);
             issues[i].draw();
         }
+}
+
+bool DieZeit::saveIssuesToFile()
+{
+    if(iv_access(DIEZEIT_CSV_PATH.c_str(), R_OK)!=0)
+        return false;
+
+    ofstream outFile(DIEZEIT_CSV_PATH.c_str());
+
+    if(outFile)
+    {
+        for (const auto &iss : issues)
+        {
+            outFile << iss.getTitle() << CSV_DELIM << iss.getContentUrl() << CSV_DELIM << iss.getDownloadUrl() << CSV_DELIM << iss.getPath() 
+                    << CSV_DELIM << iss.getContent() << CSV_DELIM << iss.isHidden() << CSV_DELIM << iss.isDownloaded() << endl; 
+        }
+        return true;
+    }
+    return false;    
+}
+
+bool DieZeit::getIssuesFromFile()
+{
+    if(iv_access(DIEZEIT_CSV_PATH.c_str(), R_OK)!=0)
+        return false;
+
+    ifstream inFile(DIEZEIT_CSV_PATH.c_str());
+
+    auto line = std::string{};
+
+    while(getline(inFile,line))
+    {
+        istringstream str_strm(line);
+        issues.push_back(Issue(str_strm));
+    }
+
+    if(issues.size()<1)
+        return false;
+
+    loggedIn = true;
+
+    return true;
+
 }

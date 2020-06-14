@@ -41,6 +41,9 @@ class DieZeit {
         bool getCurrentIssues(string htmlpage);
         void drawIssuesScreen();
 
+        bool saveIssuesToFile();
+        bool getIssuesFromFile();
+
     private:
 
         ifont* dieZeitFont;  

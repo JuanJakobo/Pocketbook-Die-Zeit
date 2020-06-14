@@ -12,13 +12,39 @@
 #include "eventHandler.h"
 
 #include <string>
-
+#include <sstream>
 
 using namespace std;
 
 Issue::Issue(const string& Title, const string& ContentUrl): title(Title), contentUrl(ContentUrl)
 {
     downloaded = false;
+}
+
+Issue::Issue(istringstream& str_strm)
+{
+    string tmp;
+
+    getline(str_strm, tmp, ',');
+    title = tmp;
+
+    getline(str_strm, tmp, ',');
+    contentUrl = tmp;
+
+    getline(str_strm, tmp, ',');
+    downloadUrl = tmp;
+
+    getline(str_strm, tmp, ',');
+    content = tmp;
+
+    getline(str_strm, tmp, ',');
+    path = tmp;
+
+    getline(str_strm, tmp, ',');
+    hidden = (tmp=="1") ? true : false;
+
+    getline(str_strm, tmp, ',');
+    downloaded = (tmp=="1") ? true : false;
 }
 
 void Issue::setRect(irect* Rect)
