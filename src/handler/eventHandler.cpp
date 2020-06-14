@@ -9,6 +9,7 @@
 #include "inkview.h"
 #include "eventHandler.h"
 #include "menuHandler.h"
+#include "dieZeit.h"
 
 #include <string>
 
@@ -21,12 +22,23 @@ EventHandler::EventHandler()
 
     menu = new MenuHandler("Die Zeit");
 
+    zeit = new DieZeit(menu->getContentRect());
+
+    if(zeit->login())
+    {
+        zeit->drawIssuesScreen();
+    }else
+    {
+        Message(ICON_ERROR, "Error", "Failed to login", 600);
+    }
+    
     FullUpdate();
 }
 
 EventHandler::~EventHandler()
 {
     delete menu;
+    delete zeit;
 }
 
 int EventHandler::eventDistributor(int type, int par1, int par2)
@@ -73,7 +85,7 @@ int EventHandler::pointerHandler(int type, int par1, int par2)
     {
         if(IsInRect(par1,par2,menu->getMenuButtonRect())==1)
         {
-            menu->createMenu(true,EventHandler::mainMenuHandlerStatic);
+            menu->createMenu(zeit->isLoggedIn(),EventHandler::mainMenuHandlerStatic);
         }
         else
         {

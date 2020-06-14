@@ -10,6 +10,7 @@
 #define EVENT_HANDLER
 
 #include "menuHandler.h"
+#include "dieZeit.h"
 
 
 class EventHandler 
@@ -40,6 +41,7 @@ class EventHandler
 
         static EventHandler *eventHandlerStatic;
         MenuHandler *menu;
+        DieZeit *zeit;
 
        /**
         * Functions needed to call C function, redirects to real function

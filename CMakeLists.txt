@@ -48,6 +48,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(SOURCES ${CMAKE_SOURCE_DIR}/src/main.cpp 
 			${CMAKE_SOURCE_DIR}/src/handler/eventHandler.cpp 		
 			${CMAKE_SOURCE_DIR}/src/handler/menuHandler.cpp 		
+			${CMAKE_SOURCE_DIR}/src/ui/dieZeit.cpp 		
+			${CMAKE_SOURCE_DIR}/src/ui/issue.cpp 		
+			${CMAKE_SOURCE_DIR}/src/util/util.cpp 		
 )
 
 add_executable(DieZeit.app ${SOURCES})
@@ -55,7 +58,8 @@ add_executable(DieZeit.app ${SOURCES})
 include_directories(
 	$(TARGET_INCLUDE)
     ${CMAKE_SOURCE_DIR}/src/handler/
-
+	${CMAKE_SOURCE_DIR}/src/ui/
+    ${CMAKE_SOURCE_DIR}/src/util/
 )
 
 TARGET_LINK_LIBRARIES (DieZeit.app ${TARGET_LIB})

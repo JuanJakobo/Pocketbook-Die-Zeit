@@ -13,8 +13,6 @@
 
 MenuHandler::MenuHandler(const std::string &name)
 {
-
-
     //Define panel size
     panelMenuHeight = ScreenHeight() / 18;
     panelMenuBeginY = 0;
@@ -29,7 +27,7 @@ MenuHandler::MenuHandler(const std::string &name)
 
     DrawTextRect(0,panelMenuBeginY,ScreenWidth(),panelMenuHeight,name.c_str(),ALIGN_CENTER);
     DrawTextRect2(&menuButtonRect,"Menu");
-    DrawLine(0,panelMenuHeight,ScreenWidth(),panelMenuHeight,BLACK);
+    DrawLine(0,panelMenuHeight-1,ScreenWidth(),panelMenuHeight-1,BLACK);
 
     contentRect = iRect(0,panelMenuHeight,ScreenWidth(),(ScreenHeight() - PanelHeight() - panelMenuHeight),0);
 
