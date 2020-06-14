@@ -23,7 +23,6 @@ const string DIEZEIT_ISSUE_PATH = "/mnt/ext1/dieZeit/";
 const string DIEZEIT_LOGIN_URL = "https://meine.zeit.de/anmelden?url=https%3A//premium.zeit.de/aktion/das-digitale-abo-der-zeit&entry_service=premium";
 const int    DIEZEIT_FONT_SIZE = 40;
 
-
 class DieZeit {
     public:
 
@@ -40,6 +39,8 @@ class DieZeit {
         void renameCookie();
         bool getCurrentIssues(string htmlpage);
         void drawIssuesScreen();
+
+        int issueClicked(int x,int y);
 
         bool saveIssuesToFile();
         bool getIssuesFromFile();

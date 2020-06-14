@@ -94,14 +94,18 @@ int EventHandler::pointerHandler(int type, int par1, int par2)
     {
         if(IsInRect(par1,par2,menu->getMenuButtonRect())==1)
         {
-            menu->createMenu(zeit->isLoggedIn(),EventHandler::mainMenuHandlerStatic);
+            return menu->createMenu(zeit->isLoggedIn(),EventHandler::mainMenuHandlerStatic);
+        }
+        else if(IsInRect(par1,par2,menu->getContentRect())==1)
+        {
+            return zeit->issueClicked(par1,par2);
         }
         else
         {
             DrawTextRect(par1,par2,100,100,"*",ALIGN_CENTER);
             PartialUpdate(par1,par2,100,100);
+            return 1;
         }
-        return 1;
     }
 
     return 0;

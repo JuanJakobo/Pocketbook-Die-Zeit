@@ -40,23 +40,13 @@ MenuHandler::~MenuHandler()
     CloseFont(menuFont);
 }
 
-irect* MenuHandler::getContentRect()
-{
-    return &contentRect;
-}
-
-irect* MenuHandler::getMenuButtonRect()
-{
-    return &menuButtonRect;
-}
-
 void MenuHandler::panelHandlerStatic() 
 {
     DrawPanel(NULL, "", NULL, -1);
     SetHardTimer("PANELUPDATE", panelHandlerStatic, 110000);
 }
 
-void MenuHandler::createMenu(bool loggedIn, iv_menuhandler handler)
+int MenuHandler::createMenu(bool loggedIn, iv_menuhandler handler)
 {
     imenu mainMenu[]=
     {
@@ -82,4 +72,7 @@ void MenuHandler::createMenu(bool loggedIn, iv_menuhandler handler)
     }   
 
     OpenMenu(mainMenu,0,panelMenuBeginX,panelMenuBeginY,handler);
+    
+    return 1;
+    
 }

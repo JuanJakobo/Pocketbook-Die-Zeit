@@ -26,7 +26,8 @@ class Issue
 
         bool operator== (const Issue &iss) const;
         
-        void    setRect(irect* Rect);
+        void    setRect(irect Rect);
+        irect*  getRect(){return &rect;};
         string  getTitle() const {return title;};
         string  getContentUrl() const {return contentUrl;};
         string  getDownloadUrl() const {return downloadUrl;};
@@ -35,11 +36,15 @@ class Issue
         bool    isHidden() const {return hidden;};
         bool    isDownloaded() const {return downloaded;};
 
-        void    draw();
+        void    draw(ifont* font);
+        void    isClicked(int x, int y, ifont* font);
 
     private:
-        irect*  rect;
+        irect   rect;
         irect   downloadButton;
+        irect   readButton;
+        irect   removeButton;
+
         string  title;
         string  contentUrl;
         string  downloadUrl;

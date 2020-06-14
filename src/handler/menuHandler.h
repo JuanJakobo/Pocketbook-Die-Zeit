@@ -22,11 +22,11 @@ class MenuHandler {
         * Destructor 
         */
         ~MenuHandler();
+        
+        irect*   getContentRect(){return &contentRect;};
+        irect*   getMenuButtonRect(){return &menuButtonRect;};
 
-        irect*   getContentRect();
-        irect*   getMenuButtonRect();
-
-        void    createMenu(bool loggedIn, iv_menuhandler handler);
+        int    createMenu(bool loggedIn, iv_menuhandler handler);
 
     private:
 

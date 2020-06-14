@@ -163,21 +163,31 @@ bool DieZeit::getCurrentIssues(string htmlpage)
 void DieZeit::drawIssuesScreen()
 {
         int entrySize = DIEZEIT_FONT_SIZE*3;
-        SetFont(dieZeitFont, BLACK);
         
         for(unsigned int i = 0; i < issues.size(); i++)
         {
             irect rect = iRect(0,i*entrySize+contentRect->y,ScreenWidth(),entrySize,0);
-            issues[i].setRect(&rect);
-            issues[i].draw();
+            issues[i].setRect(rect);
+            DrawTextRect2(&rect,"abc");
+            issues[i].draw(dieZeitFont);
         }
+}
+
+int DieZeit::issueClicked(int x, int y)
+{
+    for(unsigned int i = 0; i < issues.size(); i++)
+    {
+        if(IsInRect(x,y,issues[i].getRect())==1)
+        {
+            issues[i].isClicked(x,y,dieZeitFont);
+            return 1;
+        }
+    }
+    return 0;
 }
 
 bool DieZeit::saveIssuesToFile()
 {
-    if(iv_access(DIEZEIT_CSV_PATH.c_str(), R_OK)!=0)
-        return false;
-
     ofstream outFile(DIEZEIT_CSV_PATH.c_str());
 
     if(outFile)

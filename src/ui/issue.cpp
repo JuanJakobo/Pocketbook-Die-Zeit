@@ -8,11 +8,14 @@
 
 #include "issue.h"
 #include "inkview.h"
+#include "dieZeit.h"
 #include "util.h"
 #include "eventHandler.h"
 
 #include <string>
 #include <sstream>
+#include <curl/curl.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -47,7 +50,7 @@ Issue::Issue(istringstream& str_strm)
     downloaded = (tmp=="1") ? true : false;
 }
 
-void Issue::setRect(irect* Rect)
+void Issue::setRect(irect Rect)
 {
     rect = Rect;
 }
@@ -59,14 +62,60 @@ bool Issue::operator== (const Issue &iss) const
     return false;
 }
 
-void Issue::draw()
+void Issue::draw(ifont* font)
 {
-    FillAreaRect(rect,WHITE);
+    FillAreaRect(&rect,WHITE);
 
-    DrawTextRect(rect->x,rect->y,rect->w,rect->h,title.c_str(),ALIGN_LEFT);
-    int line = (rect->y+rect->h)-1;
+    SetFont(font, BLACK);
+
+    DrawTextRect(rect.x,rect.y,rect.w,rect.h,title.c_str(),ALIGN_LEFT);
+
+    SetFont(font, WHITE);
+    
+    if(isDownloaded())
+    {
+        readButton = iRect(ScreenWidth()-200,rect.y,200,50,ALIGN_CENTER);
+        FillAreaRect(&readButton, BLACK);
+        DrawTextRect2(&readButton,"Read");
+
+        removeButton = iRect(ScreenWidth()-200,rect.y+55,200,50,ALIGN_CENTER);
+        FillAreaRect(&removeButton, BLACK);
+        DrawTextRect2(&removeButton,"Remove");
+    }
+    else
+    {
+        downloadButton = iRect(ScreenWidth()-200,rect.y,200,50,ALIGN_CENTER);
+        FillAreaRect(&downloadButton, BLACK);
+        DrawTextRect2(&downloadButton,"Download");         
+    }
+
+    int line = (rect.y+rect.h)-1;
     DrawLine(0,line,ScreenWidth(),line,BLACK);
-    downloadButton = iRect(0,rect->y,rect->w,30,ALIGN_RIGHT);
-    DrawTextRect2(&downloadButton,"Download");
 }
 
+void Issue::isClicked(int x, int y, ifont* font)
+{
+    if(isDownloaded())
+    {
+        if(IsInRect(x,y,&readButton)==1)
+        {
+
+        }
+        else if(IsInRect(x,y,&removeButton)==1)
+        {
+            downloaded = false;
+        }
+    }
+    else
+    {
+        if(IsInRect(x,y,&downloadButton)==1)
+        {
+            downloaded = true;
+        }
+    }
+
+    draw(font);
+
+    PartialUpdate(0,rect.y,ScreenWidth(),rect.h);
+
+}
