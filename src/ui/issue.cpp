@@ -62,6 +62,46 @@ bool Issue::operator== (const Issue &iss) const
     return false;
 }
 
+bool Issue::getInformation()
+{
+    if(!Util::connectToNetwork())
+        return false;
+
+    std::string readBuffer;
+    CURLcode res;
+    CURL *curl = curl_easy_init();
+    if(curl)
+    {
+        curl_easy_setopt(curl, CURLOPT_URL, contentUrl.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Util::writeCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1L);
+        curl_easy_setopt(curl, CURLOPT_COOKIESESSION, true);
+        //TODO use cookie path
+        curl_easy_setopt(curl, CURLOPT_COOKIEFILE,"/mnt/ext1/system/config/dieZeit/dieZeit.cookie");  
+                
+        res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+
+        if(res == CURLE_OK)
+        {
+            // view-source:https://epaper.zeit.de/abo/diezeit/20.05.2020
+            //   <a class="btn btn-default btn-block btn-border btn-md" href="https://premium.zeit.de/system/files/2020-21/epub/die_zeit_2020_22.epub" data-wt-click="{ct: '#download_zeit+magazin', ck: {4: 'undefined', 5: 'content', 6: 'reader', 9: 'epub'}}">
+            //      EPUB FÜR E-READER LADEN    </a>
+            size_t found = readBuffer.find("https://premium.zeit.de/system");
+
+            if (found!=std::string::npos)
+            {
+                readBuffer = readBuffer.substr (found, 200);
+                found = readBuffer.find('"');
+                downloadUrl = readBuffer.substr (0,found);
+                return true;
+            }        
+        }
+    }
+    return false;
+}
+
 void Issue::draw(ifont* font)
 {
     FillAreaRect(&rect,WHITE);

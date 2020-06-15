@@ -36,6 +36,7 @@ class Issue
         bool    isHidden() const {return hidden;};
         bool    isDownloaded() const {return downloaded;};
 
+        bool    getInformation();
         void    draw(ifont* font);
         void    isClicked(int x, int y, ifont* font);
 

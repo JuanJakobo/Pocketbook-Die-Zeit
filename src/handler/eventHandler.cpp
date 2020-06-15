@@ -32,6 +32,7 @@ EventHandler::EventHandler()
     {
         if(zeit->login())
         {
+            zeit->getIssuesInformation();
             zeit->drawIssuesScreen();
             zeit->saveIssuesToFile();
         }

@@ -186,6 +186,14 @@ int DieZeit::issueClicked(int x, int y)
     return 0;
 }
 
+void DieZeit::getIssuesInformation()
+{
+    for(auto& i : issues) 
+    {
+        i.getInformation();
+    }
+}
+
 bool DieZeit::saveIssuesToFile()
 {
     ofstream outFile(DIEZEIT_CSV_PATH.c_str());

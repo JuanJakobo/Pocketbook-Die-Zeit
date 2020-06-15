@@ -41,6 +41,7 @@ class DieZeit {
         void drawIssuesScreen();
 
         int issueClicked(int x,int y);
+        void getIssuesInformation();
 
         bool saveIssuesToFile();
         bool getIssuesFromFile();
