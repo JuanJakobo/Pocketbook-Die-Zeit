@@ -40,6 +40,9 @@ class Issue
         void    draw(ifont* font);
         void    isClicked(int x, int y, ifont* font);
 
+        bool    download();
+        void    eliminate();
+
     private:
         irect   rect;
         irect   downloadButton;

@@ -143,6 +143,7 @@ void Issue::isClicked(int x, int y, ifont* font)
         }
         else if(IsInRect(x,y,&removeButton)==1)
         {
+            eliminate();
             downloaded = false;
         }
     }
@@ -150,12 +151,72 @@ void Issue::isClicked(int x, int y, ifont* font)
     {
         if(IsInRect(x,y,&downloadButton)==1)
         {
-            downloaded = true;
+            if(download())
+                downloaded = true;
         }
     }
 
     draw(font);
 
     PartialUpdate(0,rect.y,ScreenWidth(),rect.h);
+
+}
+
+bool Issue::download()
+{
+    OpenProgressbar(1,"Downloading...","Check network connection",0,EventHandler::DialogHandlerStatic);
+    
+    //TODO test if downloadUrl is set
+
+    if(!Util::connectToNetwork())
+    {
+        CloseProgressbar();
+        return false;
+    }
+
+    FILE *fp;
+    CURLcode res;
+
+    string temppath = title;
+    replace(temppath.begin(),temppath.end(),'/','_');
+    replace(temppath.begin(),temppath.end(),' ','_');
+
+    //TODO change path  and check if available
+    path = "/mnt/ext1/dieZeit/" + temppath + ".epub";
+
+    CURL *curl = curl_easy_init();
+
+    if(curl)
+    {
+        fp = iv_fopen(path.c_str(),"wb");
+        curl_easy_setopt(curl, CURLOPT_URL, getDownloadUrl().c_str());
+        curl_easy_setopt(curl, CURLOPT_COOKIESESSION, true);
+        //TODO use cookie path
+        curl_easy_setopt(curl, CURLOPT_COOKIEFILE,"/mnt/ext1/system/config/dieZeit/dieZeit.cookie");   
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Util::writeData);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, false);
+        curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, Util::progress_callback); 
+
+        res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+        iv_fclose(fp);
+
+        if (res == CURLE_OK) 
+        {
+            downloaded = true;
+            CloseProgressbar();
+            return true;
+        }
+    }
+    CloseProgressbar();
+    //path = nullptr;
+    return false;
+}
+
+void Issue::eliminate()
+{
+    if(iv_access(path.c_str(),W_OK)==0)
+        remove(path.c_str());
 
 }

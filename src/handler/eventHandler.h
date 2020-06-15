@@ -35,8 +35,10 @@ class EventHandler
         * @param par2 second argument of the event
         * @return int returns if the event was handled
         */
-        int eventDistributor(int type, int par1, int par2);       
+        int eventDistributor(int type, int par1, int par2); 
 
+        static void DialogHandlerStatic(int Button);      
+        
     private:
 
         static EventHandler *eventHandlerStatic;

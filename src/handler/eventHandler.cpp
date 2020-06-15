@@ -59,6 +59,11 @@ int EventHandler::eventDistributor(int type, int par1, int par2)
     return 0;
 }
 
+void EventHandler::DialogHandlerStatic(int Button)
+{
+    //TODO DEFINE CANCEL Button (1)
+}
+
 void EventHandler::mainMenuHandlerStatic(int index)
 {
     eventHandlerStatic->mainMenuHandler(index);
