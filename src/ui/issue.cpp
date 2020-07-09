@@ -77,8 +77,7 @@ bool Issue::getInformation()
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
         curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1L);
         curl_easy_setopt(curl, CURLOPT_COOKIESESSION, true);
-        //TODO use cookie path
-        curl_easy_setopt(curl, CURLOPT_COOKIEFILE,"/mnt/ext1/system/config/dieZeit/dieZeit.cookie");  
+        curl_easy_setopt(curl, CURLOPT_COOKIEFILE,DIEZEIT_COOOKIE_PATH.c_str());  
                 
         res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
@@ -115,6 +114,7 @@ void Issue::draw(ifont* font)
     if(isDownloaded())
     {
         readButton = iRect(ScreenWidth()-200,rect.y,200,50,ALIGN_CENTER);
+        //void DrawBorder(const irect *border_rect, int border_size, int style, int radius, int color);
         FillAreaRect(&readButton, BLACK);
         DrawTextRect2(&readButton,"Read");
 
@@ -181,8 +181,8 @@ bool Issue::download()
     replace(temppath.begin(),temppath.end(),'/','_');
     replace(temppath.begin(),temppath.end(),' ','_');
 
-    //TODO change path  and check if available
-    path = "/mnt/ext1/dieZeit/" + temppath + ".epub";
+    //TODO check if available
+    path = DIEZEIT_ISSUE_PATH + temppath + ".epub";
 
     CURL *curl = curl_easy_init();
 
@@ -191,8 +191,7 @@ bool Issue::download()
         fp = iv_fopen(path.c_str(),"wb");
         curl_easy_setopt(curl, CURLOPT_URL, getDownloadUrl().c_str());
         curl_easy_setopt(curl, CURLOPT_COOKIESESSION, true);
-        //TODO use cookie path
-        curl_easy_setopt(curl, CURLOPT_COOKIEFILE,"/mnt/ext1/system/config/dieZeit/dieZeit.cookie");   
+        curl_easy_setopt(curl, CURLOPT_COOKIEFILE,DIEZEIT_COOOKIE_PATH.c_str());   
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Util::writeData);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, false);

@@ -19,8 +19,12 @@
 
 using namespace std;
 
+DieZeit * DieZeit::dieZeitStatic;
+
 DieZeit::DieZeit(irect* ContentRect): contentRect(ContentRect)
 {
+    dieZeitStatic = this;
+
     loggedIn = false;
 
     dieZeitFont = OpenFont("LiberationMono",DIEZEIT_FONT_SIZE,1);
@@ -46,6 +50,14 @@ string DieZeit::getUsername()
     return user;
 }
 
+void DieZeit::setUsername(const string& Username)
+{
+    iconfigedit* temp = nullptr;
+    iconfig  *dieZeitConfig = OpenConfig(DIEZEIT_CONFIG_PATH.c_str(),temp);
+    WriteString(dieZeitConfig,"username",Username.c_str());
+    CloseConfig(dieZeitConfig);
+}
+
 string DieZeit::getPassword()
 {
     iconfigedit* temp = nullptr;
@@ -53,6 +65,14 @@ string DieZeit::getPassword()
     string pass = ReadSecret(dieZeitConfig,"password","");
     CloseConfigNoSave(dieZeitConfig);
     return pass;
+}
+
+void DieZeit::setPassword(const string& Pass)
+{
+    iconfigedit* temp = nullptr;
+    iconfig  *dieZeitConfig = OpenConfig(DIEZEIT_CONFIG_PATH.c_str(),temp);
+    WriteSecret(dieZeitConfig,"password",Pass.c_str());
+    CloseConfig(dieZeitConfig);
 }
 
 bool DieZeit::login()
@@ -90,6 +110,24 @@ bool DieZeit::login()
         }
     }
     return false;
+}
+
+bool DieZeit::logout()
+{
+    //TODO what to do with existing books? 
+    //dialog "want to remove books"
+
+    //TODO
+    //https://meine.zeit.de/abmelden?url=https%3A//premium.zeit.de/
+    //delete Config
+    //return false;
+    remove(DIEZEIT_CONFIG_PATH.c_str());
+    remove(DIEZEIT_COOOKIE_PATH.c_str());
+    remove(DIEZEIT_CSV_PATH.c_str());
+    issues.clear();
+    loggedIn = false;
+
+    return true;
 }
 
 void DieZeit::renameCookie()
@@ -173,6 +211,31 @@ void DieZeit::drawIssuesScreen()
         }
 }
 
+void DieZeit::drawLoginScreen()
+{
+
+    usernameButton = iRect(50,200,ScreenWidth()-50,75,ALIGN_CENTER);
+    DrawLine(20,275,(ScreenWidth()-20),275,BLACK);
+    //DrawBorder(&usernameButton, 5, 1, 1, BLACK);
+    //void DrawBorder(const irect *border_rect, int border_size, int style, int radius, int color);
+    //DrawPickOutEx(&usernameButton, "test");
+    //FillAreaRect(&usernameButton, BLACK);
+    SetFont(dieZeitFont,BLACK);
+    DrawTextRect2(&usernameButton,"Username");
+
+    passwordButton = iRect(50,400,(ScreenWidth()-50),75,ALIGN_CENTER);
+    DrawLine(20,475,(ScreenWidth()-20),475,BLACK);
+    //FillArea(21,301,(ScreenWidth()-20),75, BLACK);
+    //FillAreaRect(&passwordButton, WHITE);
+    SetFont(dieZeitFont,BLACK);
+    DrawTextRect2(&passwordButton,"Password");
+
+    loginButton = iRect(ScreenWidth()/2,contentRect->h/2,200,50,ALIGN_CENTER);
+    FillAreaRect(&loginButton, BLACK);
+    SetFont(dieZeitFont,WHITE);
+    DrawTextRect2(&loginButton,"Login"); 
+}
+
 int DieZeit::issueClicked(int x, int y)
 {
     for(unsigned int i = 0; i < issues.size(); i++)
@@ -183,6 +246,77 @@ int DieZeit::issueClicked(int x, int y)
             return 1;
         }
     }
+    return 0;
+}
+
+//TODO WHERE TO MOVE TO??
+void DieZeit::keyboardHandlerStatic(char *text) 
+{   
+    dieZeitStatic->keyboardHandler(text);
+}
+
+
+void DieZeit::keyboardHandler(char *text)
+{
+    if(!text)
+        return;
+
+    std::string s(text);
+    if (s.empty())
+        return;
+
+    if(test==1)
+    {
+        //TODO only save after successful login??
+        this->setUsername(s.c_str());
+        DrawTextRect2(&usernameButton,s.c_str());
+    }
+    else
+    {
+        this->setPassword(s.c_str());
+        DrawTextRect2(&passwordButton,s.c_str());
+
+    }    
+
+    //m_cmd_buffer = null after setting it
+
+}
+
+int DieZeit::logginClicked(int x, int y)
+{
+    //TODO anpassen
+    #define MAX_CMD_LEN      256
+    char m_cmd_buffer[4 * MAX_CMD_LEN + 1];
+
+    //TODO Move all to event handler?
+    //TODO if config not existent --> create  // add  warning
+    
+    if(IsInRect(x,y,&usernameButton))
+    {
+        test = 1;
+        OpenKeyboard("Username", m_cmd_buffer, MAX_CMD_LEN-1, KBD_NORMAL, &keyboardHandlerStatic);
+        return 1;
+    }
+    else if(IsInRect(x,y,&passwordButton))
+    {
+        test = 2;
+        OpenKeyboard("Password", m_cmd_buffer, MAX_CMD_LEN-1, KBD_NORMAL, &keyboardHandlerStatic);
+
+        return 1;
+    }
+    else if(IsInRect(x,y,&loginButton))
+    {
+        login();
+        getIssuesInformation();
+        //UpdateProgressbar("Done",90);
+        FillAreaRect(contentRect,WHITE);
+        drawIssuesScreen();
+        saveIssuesToFile();
+        //TODO missing draw etc; where to place it?
+        FullUpdate();
+        return 1;
+    }
+
     return 0;
 }
 
