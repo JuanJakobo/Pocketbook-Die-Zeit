@@ -12,6 +12,7 @@
 #include "util.h"
 #include "eventHandler.h"
 
+#include <iostream>
 #include <string>
 #include <sstream>
 #include <curl/curl.h>
@@ -19,7 +20,7 @@
 
 using namespace std;
 
-Issue::Issue(const string& Title, const string& ContentUrl): title(Title), contentUrl(ContentUrl)
+Issue::Issue(const string& Title, const string& ContentUrl, const tm& ReleaseDate): title(Title), contentUrl(ContentUrl), releaseDate(ReleaseDate)
 {
     downloaded = false;
 }
@@ -33,6 +34,11 @@ Issue::Issue(istringstream& str_strm)
 
     getline(str_strm, tmp, ',');
     contentUrl = tmp;
+
+    getline(str_strm,tmp,',');
+	sscanf(tmp.c_str(),"%2d.%2d.%4d",&releaseDate.tm_mday,&releaseDate.tm_mon,&releaseDate.tm_year);
+    releaseDate.tm_mon = releaseDate.tm_mon -1;
+    releaseDate.tm_year = releaseDate.tm_year -1900;
 
     getline(str_strm, tmp, ',');
     downloadUrl = tmp;
@@ -55,11 +61,35 @@ void Issue::setRect(irect Rect)
     rect = Rect;
 }
 
-bool Issue::operator== (const Issue &iss) const
+bool Issue::operator > (const Issue& iss) const
+{
+    if (releaseDate.tm_year > iss.releaseDate.tm_year)
+      return true;
+    if (releaseDate.tm_year == iss.releaseDate.tm_year && releaseDate.tm_mon > iss.releaseDate.tm_mon)
+      return true;
+    if (releaseDate.tm_year == iss.releaseDate.tm_year &&  releaseDate.tm_mon == iss.releaseDate.tm_mon && releaseDate.tm_mday > iss.releaseDate.tm_mday)
+      return true;
+    return false;
+}
+
+bool Issue::operator== (const Issue& iss) const
 {
     if(this->title==iss.title)
         return true;
     return false;
+}
+
+ostream& operator<< (ostream &out, Issue const& iss) {
+    out << iss.title << ',' << iss.contentUrl << ',' << iss.getReleaseDate() << ','  
+        << iss.downloadUrl << ',' << iss.path << ',' << iss.content << ',' 
+        << iss.hidden << ',' << iss.downloaded << endl; 
+    return out;
+}
+
+string  Issue::getReleaseDate() const {    
+    char buffer [80];
+    strftime (buffer,80,"%d.%m.%Y",&releaseDate);
+    return buffer;
 }
 
 bool Issue::getInformation()
@@ -76,9 +106,8 @@ bool Issue::getInformation()
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Util::writeCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
         curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1L);
-        curl_easy_setopt(curl, CURLOPT_COOKIESESSION, true);
+        //curl_easy_setopt(curl, CURLOPT_COOKIESESSION, true);
         curl_easy_setopt(curl, CURLOPT_COOKIEFILE,DIEZEIT_COOOKIE_PATH.c_str());  
-                
         res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
 
@@ -95,8 +124,19 @@ bool Issue::getInformation()
                 found = readBuffer.find('"');
                 downloadUrl = readBuffer.substr (0,found);
                 return true;
+            }
+            else 
+            {
+                downloadUrl= "";
+                Message(ICON_ERROR, "Error", "Failed to get Content.", 600);
+
             }        
         }
+        else
+        {
+            Message(ICON_ERROR, "Error", curl_easy_strerror(res), 600);
+        }
+        
     }
     return false;
 }
@@ -165,8 +205,13 @@ void Issue::isClicked(int x, int y, ifont* font)
 bool Issue::download()
 {
     OpenProgressbar(1,"Downloading...","Check network connection",0,EventHandler::DialogHandlerStatic);
-    
-    //TODO test if downloadUrl is set
+
+    if(downloadUrl=="")
+    {
+        CloseProgressbar();
+        Message(1,"Error","Download URl not found.",100);
+        return false;
+    }
 
     if(!Util::connectToNetwork())
     {
@@ -189,8 +234,8 @@ bool Issue::download()
     if(curl)
     {
         fp = iv_fopen(path.c_str(),"wb");
-        curl_easy_setopt(curl, CURLOPT_URL, getDownloadUrl().c_str());
-        curl_easy_setopt(curl, CURLOPT_COOKIESESSION, true);
+        curl_easy_setopt(curl, CURLOPT_URL, downloadUrl.c_str());
+        //curl_easy_setopt(curl, CURLOPT_COOKIESESSION, true);
         curl_easy_setopt(curl, CURLOPT_COOKIEFILE,DIEZEIT_COOOKIE_PATH.c_str());   
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Util::writeData);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);

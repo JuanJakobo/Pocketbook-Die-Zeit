@@ -13,7 +13,7 @@
 
 #include <string>
 #include <vector>
-
+#include <iostream>
 
 using namespace std;
 
@@ -21,18 +21,16 @@ class Issue
 {
     public:
 
-        Issue(const string& Title, const string& ContentUrl);
+        Issue(const string& Title, const string& ContentUrl, const tm& ReleaseDate);
         Issue(istringstream& str_strm);
 
-        bool operator== (const Issue &iss) const;
-        
+        friend ostream& operator<< (ostream &out, Issue const& iss);
+        bool operator== (const Issue& iss) const;
+        bool operator > (const Issue& iss) const;
+
         void    setRect(irect Rect);
         irect*  getRect(){return &rect;};
-        string  getTitle() const {return title;};
-        string  getContentUrl() const {return contentUrl;};
-        string  getDownloadUrl() const {return downloadUrl;};
-        string  getPath() const {return path;};
-        string  getContent() const {return content;};
+        string  getReleaseDate() const;
         bool    isHidden() const {return hidden;};
         bool    isDownloaded() const {return downloaded;};
 
@@ -51,6 +49,7 @@ class Issue
 
         string  title;
         string  contentUrl;
+        tm      releaseDate;
         string  downloadUrl;
         string  path;
         string  content;

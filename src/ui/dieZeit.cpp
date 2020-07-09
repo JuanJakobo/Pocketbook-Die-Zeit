@@ -96,7 +96,6 @@ bool DieZeit::login()
         curl_easy_setopt(curl, CURLOPT_COOKIESESSION, true);
         curl_easy_setopt(curl, CURLOPT_COOKIEFILE, DIEZEIT_COOOKIE_PATH.c_str());  
         curl_easy_setopt(curl, CURLOPT_COOKIEJAR, DIEZEIT_COOOKIE_PATH.c_str());
-        //curl_easy_setopt(curl, CURLOPT_SSL_CIPHER_LIST,"DEFAULT@SECLEVEL=1");
 
         res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
@@ -104,7 +103,6 @@ bool DieZeit::login()
 
         if(res == CURLE_OK)
         {
-            this->renameCookie();
             loggedIn = true;
             return getCurrentIssues(readBuffer);
         }
@@ -154,7 +152,7 @@ bool DieZeit::getCurrentIssues(string htmlpage)
 {
     std::size_t found;
 
-    auto i = 0;
+    tm releaseDate;
     string contentUrl;
     string title;
 
@@ -164,6 +162,7 @@ bool DieZeit::getCurrentIssues(string htmlpage)
         return false;
 
     //epaper-cover
+    //gets the last 7 issues
     do
     {
         found = std::string::npos;
@@ -186,15 +185,24 @@ bool DieZeit::getCurrentIssues(string htmlpage)
             htmlpage = htmlpage.substr(found+5);
             title = htmlpage.substr(0, htmlpage.find("\""));
 
-            Issue temp = Issue(title,contentUrl);
+            found = htmlpage.find("release-date\">");
+            htmlpage = htmlpage.substr(found+14);
+            string releasedateString = htmlpage.substr(0, htmlpage.find("<"));
+
+	        sscanf(releasedateString.c_str(),"%2d.%2d.%4d",&releaseDate.tm_mday,&releaseDate.tm_mon,&releaseDate.tm_year);
+            releaseDate.tm_mon = releaseDate.tm_mon -1;
+            releaseDate.tm_year = releaseDate.tm_year -1900;
+
+            Issue temp = Issue(title,contentUrl,releaseDate);
 
             if(find(issues.begin(), issues.end(), temp) == issues.end())
                 this->issues.push_back(temp);
         }
-        i++;
-
     } while (found!=std::string::npos);
 
+    //sort issues 
+    sort(issues.begin(),issues.end(),greater<Issue>());
+    
     return true;
 }
 
@@ -306,15 +314,21 @@ int DieZeit::logginClicked(int x, int y)
     }
     else if(IsInRect(x,y,&loginButton))
     {
-        login();
-        getIssuesInformation();
-        //UpdateProgressbar("Done",90);
-        FillAreaRect(contentRect,WHITE);
-        drawIssuesScreen();
-        saveIssuesToFile();
-        //TODO missing draw etc; where to place it?
-        FullUpdate();
-        return 1;
+        if(login())
+        {
+            getIssuesInformation();
+            FillAreaRect(contentRect,WHITE);
+            drawIssuesScreen();
+            saveIssuesToFile();
+            FullUpdate();
+            return 1;
+        }
+        else
+        {
+            Message(ICON_ERROR, "Error", "Failed to login", 600);
+        }
+        
+
     }
 
     return 0;
@@ -336,8 +350,7 @@ bool DieZeit::saveIssuesToFile()
     {
         for (const auto &iss : issues)
         {
-            outFile << iss.getTitle() << CSV_DELIM << iss.getContentUrl() << CSV_DELIM << iss.getDownloadUrl() << CSV_DELIM << iss.getPath() 
-                    << CSV_DELIM << iss.getContent() << CSV_DELIM << iss.isHidden() << CSV_DELIM << iss.isDownloaded() << endl; 
+            outFile << iss;       
         }
         return true;
     }

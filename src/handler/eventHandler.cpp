@@ -96,6 +96,26 @@ void EventHandler::mainMenuHandler(int index)
             break; 	 
         //Actualize
         case 102:
+            //Todo in method 
+                OpenProgressbar(1,"Login to Zeit","Loggin in",10,DialogHandlerStatic);
+
+                if(zeit->login())
+                {        
+                    UpdateProgressbar("Getting current issues",70);
+                    zeit->getIssuesInformation();
+                    UpdateProgressbar("Done",90);
+                    //FillAreaRect(menu->getContentRect(),WHITE);
+                    zeit->drawIssuesScreen();
+                    zeit->saveIssuesToFile();
+                    CloseProgressbar();
+
+                }
+                else
+                {
+                    CloseProgressbar();
+                    Message(ICON_ERROR, "Error", "Failed to login", 600);
+                }
+                PartialUpdate(1,menu->getContentRect()->y,menu->getContentRect()->w,menu->getContentRect()->h);     
             break; 
         //Logout	 
         case 103:
