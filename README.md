@@ -12,7 +12,7 @@ I created it, to start learning C++ and understand the SDK of Pocketbook.
 
 ## Disclamer
 
-Use as your own risk! 
+Use at your own risk! 
 Even though the possibility is really low, the application could harm your device or even break it.
 
 
