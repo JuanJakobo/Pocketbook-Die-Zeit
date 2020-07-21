@@ -51,8 +51,8 @@ int Util::progress_callback(void *clientp,   double dltotal,   double dlnow,   d
         return 0;
 
     int percentage = round(dlnow/dltotal * 100);
-
-    UpdateProgressbar("Downloading issue",percentage);
+	if(percentage%10==0)
+    	UpdateProgressbar("Downloading issue",percentage);
 
     return 0;
 
