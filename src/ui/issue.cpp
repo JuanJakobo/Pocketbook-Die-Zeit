@@ -97,6 +97,9 @@ bool Issue::getInformation()
     if(!Util::connectToNetwork())
         return false;
 
+    if(!downloadUrl.empty())
+        return true;
+
     std::string readBuffer;
     CURLcode res;
     CURL *curl = curl_easy_init();
@@ -128,7 +131,7 @@ bool Issue::getInformation()
             else 
             {
                 downloadUrl= "";
-                Message(ICON_ERROR, "Error", "Failed to get Content.", 600);
+                Message(ICON_ERROR, "Error", "Failed to parse in download URL", 600);
 
             }        
         }
@@ -154,7 +157,6 @@ void Issue::draw(ifont* font)
     if(isDownloaded())
     {
         readButton = iRect(ScreenWidth()-200,rect.y,200,50,ALIGN_CENTER);
-        //void DrawBorder(const irect *border_rect, int border_size, int style, int radius, int color);
         FillAreaRect(&readButton, BLACK);
         DrawTextRect2(&readButton,"Read");
 
