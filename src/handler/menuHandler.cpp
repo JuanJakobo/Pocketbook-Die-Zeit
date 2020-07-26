@@ -63,11 +63,11 @@ int MenuHandler::createMenu(bool loggedIn, iv_menuhandler handler)
 
     if(loggedIn)
     {
-        mainMenu[3].type=ITEM_ACTIVE;
+        mainMenu[2].type=ITEM_ACTIVE;
     }
     else
     {
-        mainMenu[5].type=ITEM_ACTIVE;
+        mainMenu[4].type=ITEM_ACTIVE;
     }   
 
     OpenMenu(mainMenu,0,panelMenuBeginX,panelMenuBeginY,handler);
