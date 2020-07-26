@@ -19,12 +19,8 @@
 
 using namespace std;
 
-DieZeit * DieZeit::dieZeitStatic;
-
 DieZeit::DieZeit(irect* ContentRect): contentRect(ContentRect)
 {
-    dieZeitStatic = this;
-
     loggedIn = false;
 
     dieZeitFont = OpenFont("LiberationMono",DIEZEIT_FONT_SIZE,1);
@@ -41,30 +37,12 @@ DieZeit::~DieZeit()
     CloseFont(dieZeitFont);
 }
 
-string DieZeit::getUsername()
-{
-    iconfigedit* temp = nullptr;
-    iconfig  *dieZeitConfig = OpenConfig(DIEZEIT_CONFIG_PATH.c_str(),temp);
-    string user = ReadString(dieZeitConfig,"username","");
-    CloseConfigNoSave(dieZeitConfig);
-    return user;
-}
-
 void DieZeit::setUsername(const string& Username)
 {
     iconfigedit* temp = nullptr;
     iconfig  *dieZeitConfig = OpenConfig(DIEZEIT_CONFIG_PATH.c_str(),temp);
     WriteString(dieZeitConfig,"username",Username.c_str());
     CloseConfig(dieZeitConfig);
-}
-
-string DieZeit::getPassword()
-{
-    iconfigedit* temp = nullptr;
-    iconfig  *dieZeitConfig = OpenConfig(DIEZEIT_CONFIG_PATH.c_str(),temp);
-    string pass = ReadSecret(dieZeitConfig,"password","");
-    CloseConfigNoSave(dieZeitConfig);
-    return pass;
 }
 
 void DieZeit::setPassword(const string& Pass)
@@ -77,7 +55,15 @@ void DieZeit::setPassword(const string& Pass)
 
 bool DieZeit::login()
 {
+    return login(this->getUsername(),this->getPassword());     
+}
+
+bool DieZeit::login(const string& Username, const string& Pass)
+{
     if(!Util::connectToNetwork())
+        return false;
+
+    if(Username.empty() || Pass.empty())
         return false;
     
     std::string readBuffer;
@@ -86,7 +72,7 @@ bool DieZeit::login()
 
     if(curl)
     {
-        string post = "email=" + this->getUsername() + "&pass=" + this->getPassword();
+        string post = "email=" + Username + "&pass=" + Pass;
 
         curl_easy_setopt(curl, CURLOPT_URL, DIEZEIT_LOGIN_URL.c_str());
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post.c_str());
@@ -103,6 +89,16 @@ bool DieZeit::login()
 
         if(res == CURLE_OK)
         {
+            //check if login was successful
+            std::size_t found;
+            found = readBuffer.find("notification__header--error");
+            if(found!=std::string::npos)
+            {
+                Message(ICON_ERROR, "Error", "Failed to login", 600);
+                return false;
+            }
+            this->setUsername(Username);
+            this->setPassword(Pass);
             loggedIn = true;
             return getCurrentIssues(readBuffer);
         }
@@ -112,54 +108,22 @@ bool DieZeit::login()
 
 bool DieZeit::logout()
 {
-    //TODO what to do with existing books? 
-    //dialog "want to remove books"
-
-    //TODO
     //https://meine.zeit.de/abmelden?url=https%3A//premium.zeit.de/
-    //delete Config
-    //return false;
     remove(DIEZEIT_CONFIG_PATH.c_str());
     remove(DIEZEIT_COOOKIE_PATH.c_str());
-    remove(DIEZEIT_CSV_PATH.c_str());
+    Dialog(2,"Result","test","Delete issues.","Keep issues.",DieZeit::DialogHandlerStatic);
     issues.clear();
     loggedIn = false;
 
     return true;
 }
 
-void DieZeit::renameCookie()
-{
-    ifstream t(DIEZEIT_COOOKIE_PATH);
-    string str((std::istreambuf_iterator<char>(t)),
-                 std::istreambuf_iterator<char>());
-
-    string from = "zeit_sso_session_201501";
-    string to = "zeit_sso_201501";
-
-    size_t start_pos = str.find(from);
-
-    if(start_pos != string::npos)
-        str.replace(start_pos,from.length(),to);
-
-    ofstream out(DIEZEIT_COOOKIE_PATH);
-    out << str;
-    out.close();
-
-}
-
 bool DieZeit::getCurrentIssues(string htmlpage)
 {
     std::size_t found;
-
     tm releaseDate;
     string contentUrl;
     string title;
-
-    //check if login was successful
-    found = htmlpage.find("notification__header--error");
-    if(found!=std::string::npos)
-        return false;
 
     //epaper-cover
     //gets the last 7 issues
@@ -214,34 +178,8 @@ void DieZeit::drawIssuesScreen()
         {
             irect rect = iRect(0,i*entrySize+contentRect->y,ScreenWidth(),entrySize,0);
             issues[i].setRect(rect);
-            DrawTextRect2(&rect,"abc");
             issues[i].draw(dieZeitFont);
         }
-}
-
-void DieZeit::drawLoginScreen()
-{
-
-    usernameButton = iRect(50,200,ScreenWidth()-50,75,ALIGN_CENTER);
-    DrawLine(20,275,(ScreenWidth()-20),275,BLACK);
-    //DrawBorder(&usernameButton, 5, 1, 1, BLACK);
-    //void DrawBorder(const irect *border_rect, int border_size, int style, int radius, int color);
-    //DrawPickOutEx(&usernameButton, "test");
-    //FillAreaRect(&usernameButton, BLACK);
-    SetFont(dieZeitFont,BLACK);
-    DrawTextRect2(&usernameButton,"Username");
-
-    passwordButton = iRect(50,400,(ScreenWidth()-50),75,ALIGN_CENTER);
-    DrawLine(20,475,(ScreenWidth()-20),475,BLACK);
-    //FillArea(21,301,(ScreenWidth()-20),75, BLACK);
-    //FillAreaRect(&passwordButton, WHITE);
-    SetFont(dieZeitFont,BLACK);
-    DrawTextRect2(&passwordButton,"Password");
-
-    loginButton = iRect(ScreenWidth()/2,contentRect->h/2,200,50,ALIGN_CENTER);
-    FillAreaRect(&loginButton, BLACK);
-    SetFont(dieZeitFont,WHITE);
-    DrawTextRect2(&loginButton,"Login"); 
 }
 
 int DieZeit::issueClicked(int x, int y)
@@ -257,85 +195,10 @@ int DieZeit::issueClicked(int x, int y)
     return 0;
 }
 
-//TODO WHERE TO MOVE TO??
-void DieZeit::keyboardHandlerStatic(char *text) 
-{   
-    dieZeitStatic->keyboardHandler(text);
-}
-
-
-void DieZeit::keyboardHandler(char *text)
-{
-    if(!text)
-        return;
-
-    std::string s(text);
-    if (s.empty())
-        return;
-
-    if(test==1)
-    {
-        //TODO only save after successful login??
-        this->setUsername(s.c_str());
-        DrawTextRect2(&usernameButton,s.c_str());
-    }
-    else
-    {
-        this->setPassword(s.c_str());
-        DrawTextRect2(&passwordButton,s.c_str());
-
-    }    
-
-    //m_cmd_buffer = null after setting it
-
-}
-
-int DieZeit::logginClicked(int x, int y)
-{
-    //TODO anpassen
-    #define MAX_CMD_LEN      256
-    char m_cmd_buffer[4 * MAX_CMD_LEN + 1];
-
-    //TODO Move all to event handler?
-    //TODO if config not existent --> create  // add  warning
-    
-    if(IsInRect(x,y,&usernameButton))
-    {
-        test = 1;
-        OpenKeyboard("Username", m_cmd_buffer, MAX_CMD_LEN-1, KBD_NORMAL, &keyboardHandlerStatic);
-        return 1;
-    }
-    else if(IsInRect(x,y,&passwordButton))
-    {
-        test = 2;
-        OpenKeyboard("Password", m_cmd_buffer, MAX_CMD_LEN-1, KBD_NORMAL, &keyboardHandlerStatic);
-
-        return 1;
-    }
-    else if(IsInRect(x,y,&loginButton))
-    {
-        if(login())
-        {
-            getIssuesInformation();
-            FillAreaRect(contentRect,WHITE);
-            drawIssuesScreen();
-            saveIssuesToFile();
-            FullUpdate();
-            return 1;
-        }
-        else
-        {
-            Message(ICON_ERROR, "Error", "Failed to login", 600);
-        }
-        
-
-    }
-
-    return 0;
-}
-
 void DieZeit::getIssuesInformation()
 {
+
+    //only for issues which dont have 
     for(auto& i : issues) 
     {
         i.getInformation();
@@ -378,5 +241,33 @@ bool DieZeit::getIssuesFromFile()
     loggedIn = true;
 
     return true;
+
+}
+
+string DieZeit::getUsername()
+{
+    iconfigedit* temp = nullptr;
+    iconfig  *dieZeitConfig = OpenConfig(DIEZEIT_CONFIG_PATH.c_str(),temp);
+    string user = ReadString(dieZeitConfig,"username","");
+    CloseConfigNoSave(dieZeitConfig);
+    return user;
+}
+
+string DieZeit::getPassword()
+{
+    iconfigedit* temp = nullptr;
+    iconfig  *dieZeitConfig = OpenConfig(DIEZEIT_CONFIG_PATH.c_str(),temp);
+    string pass = ReadSecret(dieZeitConfig,"password","");
+    CloseConfigNoSave(dieZeitConfig);
+    return pass;
+}
+
+void DieZeit::DialogHandlerStatic(int Button)
+{
+    if(Button==1)
+    {
+        remove(DIEZEIT_CSV_PATH.c_str());
+        rmdir(DIEZEIT_ISSUE_PATH.c_str());
+    }
 
 }

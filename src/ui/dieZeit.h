@@ -21,7 +21,6 @@ const string DIEZEIT_CSV_PATH = DIEZEIT_PATH + "/dieZeit.csv";
 const string DIEZEIT_ISSUE_PATH = "/mnt/ext1/dieZeit/";
 const string DIEZEIT_LOGIN_URL = "https://meine.zeit.de/anmelden?url=https%3A//premium.zeit.de/aktion/das-digitale-abo-der-zeit&entry_service=premium";
 const int    DIEZEIT_FONT_SIZE = 40;
-//extern const ifont*    dieZeitFont
 
 class DieZeit {
     public:
@@ -30,26 +29,19 @@ class DieZeit {
 
         ~DieZeit();
 
-        //TODO PRIVATE??
-        string getUsername();
-        void   setUsername(const string& Username);
+        void setUsername(const string& Username);
+        void setPassword(const string& Pass);
 
-        string getPassword();
-        void   setPassword(const string& Pass);
-
-        void keyboardHandler(char *text);
-        
         bool isLoggedIn(){return loggedIn;};
-
+        
         bool login();
+        bool login(const string& Username, const string& Pass);
         bool logout();
-        void renameCookie();
+
         bool getCurrentIssues(string htmlpage);
         void drawIssuesScreen();
-        void drawLoginScreen();
-
+  
         int issueClicked(int x,int y);
-        int logginClicked(int x, int y);
         void getIssuesInformation();
 
         bool saveIssuesToFile();
@@ -57,23 +49,15 @@ class DieZeit {
 
     private:
 
-        static DieZeit *dieZeitStatic;
-        int test;
-
         ifont* dieZeitFont;  
         vector<Issue>   issues;
         irect*  contentRect;
-        irect   loginButton;
-        irect   usernameButton;
-        irect   passwordButton;
         bool    loggedIn;  
 
-        /**
-        * Functions needed to call C function, handles the panel
-        * 
-        * @return void
-        */
-        static void keyboardHandlerStatic(char *text); 
+        string getUsername();        
+        string getPassword();
+
+        static void DialogHandlerStatic(int Button);
 };
 
 

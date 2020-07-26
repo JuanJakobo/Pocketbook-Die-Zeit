@@ -11,6 +11,7 @@
 
 #include "menuHandler.h"
 #include "dieZeit.h"
+#include "loginScreenHandler.h"
 
 
 class EventHandler 
@@ -37,12 +38,15 @@ class EventHandler
         */
         int eventDistributor(int type, int par1, int par2); 
 
-        static void DialogHandlerStatic(int Button);      
+        static void DialogHandlerStatic(int Button);     
+
+        void loginAndDraw(); 
         
     private:
 
         static EventHandler *eventHandlerStatic;
         MenuHandler *menu;
+        LoginScreenHandler *loginScreen;
         DieZeit *zeit;
 
        /**
