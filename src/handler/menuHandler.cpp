@@ -46,13 +46,12 @@ void MenuHandler::panelHandlerStatic()
     SetHardTimer("PANELUPDATE", panelHandlerStatic, 110000);
 }
 
+
 int MenuHandler::createMenu(bool loggedIn, iv_menuhandler handler)
 {
     imenu mainMenu[]=
     {
         { ITEM_HEADER, 0, "Menu", NULL},
-        //show logged out
-        { loggedIn ? ITEM_HIDDEN : ITEM_ACTIVE, 101, "Login", NULL}, 
         //show logged in 
         { loggedIn ? ITEM_ACTIVE : ITEM_HIDDEN, 102, "Actualize", NULL}, 
         { loggedIn ? ITEM_ACTIVE : ITEM_HIDDEN, 103, "Logout", NULL}, 
