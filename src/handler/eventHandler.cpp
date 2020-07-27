@@ -100,6 +100,7 @@ void EventHandler::loginAndDraw()
     zeit->drawIssuesScreen();
     zeit->saveIssuesToFile();
     CloseProgressbar();
+    menu->updateActualizationDate();    
     //TODO fix screen update
     PartialUpdate(1,menu->getContentRect()->y,menu->getContentRect()->w,menu->getContentRect()->h);    
 }
@@ -110,7 +111,7 @@ void EventHandler::mainMenuHandler(int index)
  	{
         //Actualize
         case 102:
-            loginAndDraw();    
+            loginAndDraw();
             break; 
         //Logout	 
         case 103:

@@ -23,14 +23,17 @@ class MenuHandler {
         */
         ~MenuHandler();
         
-        irect*   getContentRect(){return &contentRect;};
-        irect*   getMenuButtonRect(){return &menuButtonRect;};
+        irect*  getContentRect(){return &contentRect;};
+        irect*  getMenuButtonRect(){return &menuButtonRect;};
 
-        int    createMenu(bool loggedIn, iv_menuhandler handler);
+        int     createMenu(bool loggedIn, iv_menuhandler handler);
+
+        void    updateActualizationDate();
 
     private:
 
         ifont*  menuFont;
+        ifont*  accFont;
 
         int     panelMenuBeginX;
         int     panelMenuBeginY;
