@@ -38,9 +38,6 @@ class Issue
         void    draw(ifont* font);
         void    isClicked(int x, int y, ifont* font);
 
-        bool    download();
-        void    eliminate();
-
     private:
         irect   rect;
         irect   downloadButton;
@@ -55,6 +52,10 @@ class Issue
         string  content;
         bool    hidden; 
         bool    downloaded;
+
+        bool    download();
+        void    eliminate();
+        void    open();
 
 };
 #endif

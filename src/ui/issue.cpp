@@ -181,7 +181,7 @@ void Issue::isClicked(int x, int y, ifont* font)
     {
         if(IsInRect(x,y,&readButton)==1)
         {
-
+            open();
         }
         else if(IsInRect(x,y,&removeButton)==1)
         {
@@ -265,4 +265,9 @@ void Issue::eliminate()
     if(iv_access(path.c_str(),W_OK)==0)
         remove(path.c_str());
 
+}
+
+void Issue::open()
+{
+    OpenBook(path.c_str(),"",0);
 }
