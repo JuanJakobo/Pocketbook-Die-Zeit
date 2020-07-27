@@ -111,9 +111,10 @@ bool DieZeit::logout()
     //https://meine.zeit.de/abmelden?url=https%3A//premium.zeit.de/
     remove(DIEZEIT_CONFIG_PATH.c_str());
     remove(DIEZEIT_COOOKIE_PATH.c_str());
-    Dialog(2,"Result","test","Delete issues.","Keep issues.",DieZeit::DialogHandlerStatic);
     issues.clear();
     loggedIn = false;
+    //TODO add to delete old issues
+    //Dialog(2,"Result","Shall the current issues be deleted?","Yes","No",DieZeit::DialogHandlerStatic);
 
     return true;
 }
@@ -268,6 +269,5 @@ void DieZeit::DialogHandlerStatic(int Button)
     {
         remove(DIEZEIT_CSV_PATH.c_str());
         rmdir(DIEZEIT_ISSUE_PATH.c_str());
-    }
-
+    } 
 }

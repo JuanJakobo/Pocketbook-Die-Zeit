@@ -69,45 +69,39 @@ void EventHandler::mainMenuHandlerStatic(int index)
 
 void EventHandler::loginAndDraw()
 {
-    if(iv_access(DIEZEIT_CONFIG_PATH.c_str(), R_OK)==0)
-    {
-        OpenProgressbar(1,"Login to Zeit","Loggin in",10,DialogHandlerStatic);
 
-        if(zeit->isLoggedIn())
+    OpenProgressbar(1,"Login to Zeit","Loggin in",10,DialogHandlerStatic);
+
+    if(zeit->isLoggedIn())
+    {
+        if(!zeit->login())
         {
-            if(zeit->login())
-            {
-                CloseProgressbar();
-                Message(ICON_ERROR, "Error", "Failed to login", 600);
-                return;
-            }
+            CloseProgressbar();
+            Message(ICON_ERROR, "Error", "Failed to login", 600);
+            return;
         }
-        else
-        {
-            if(!zeit->login(loginScreen->getUsername(),loginScreen->getPassword()))
-            {
-                CloseProgressbar();
-                Message(ICON_ERROR, "Error", "Failed to login", 600);
-                return; 
-            }
-            delete loginScreen;
-            zeit->getIssuesFromFile();
-        }
-        
-        UpdateProgressbar("Getting current issues",70);
-        zeit->getIssuesInformation();
-        UpdateProgressbar("Done",90);
-        FillAreaRect(menu->getContentRect(),WHITE);
-        zeit->drawIssuesScreen();
-        zeit->saveIssuesToFile();
-        CloseProgressbar();
-        PartialUpdate(1,menu->getContentRect()->y,menu->getContentRect()->w,menu->getContentRect()->h);
     }
     else
     {
-        Message(ICON_ERROR, "Error", "Cannot access config file.", 600);
+        if(!zeit->login(loginScreen->getUsername(),loginScreen->getPassword()))
+        {
+            CloseProgressbar();
+            Message(ICON_ERROR, "Error", "Failed to login", 600);
+            return; 
+        }
+        delete loginScreen;
+        zeit->getIssuesFromFile();
     }
-    
+        
+    UpdateProgressbar("Getting current issues",70);
+    zeit->getIssuesInformation();
+    UpdateProgressbar("Done",90);
+    FillAreaRect(menu->getContentRect(),WHITE);
+    zeit->drawIssuesScreen();
+    zeit->saveIssuesToFile();
+    CloseProgressbar();
+    //TODO fix screen update
+    PartialUpdate(1,menu->getContentRect()->y,menu->getContentRect()->w,menu->getContentRect()->h);    
 }
 
 void EventHandler::mainMenuHandler(int index)
