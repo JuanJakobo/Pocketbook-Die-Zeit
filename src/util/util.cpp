@@ -58,3 +58,22 @@ int Util::progress_callback(void *clientp,   double dltotal,   double dlnow,   d
 
 }
 
+string Util::readStringSetting(const std::string& name)
+{
+    iconfigedit* temp = nullptr;
+    iconfig  *SettingsConfig = OpenConfig(Settings_PATH.c_str(),temp);
+    std::string value = ReadString(SettingsConfig,name.c_str(),"");
+    CloseConfigNoSave(SettingsConfig);
+
+	return value;
+}
+
+void Util::writeStringSetting(const std::string& name, const std::string& value)
+{
+    iconfigedit* temp = nullptr;
+    iconfig  *SettingsConfig = OpenConfig(Settings_PATH.c_str(),temp);
+    WriteString(SettingsConfig,name.c_str(),value.c_str());
+    CloseConfig(SettingsConfig);
+}
+
+
