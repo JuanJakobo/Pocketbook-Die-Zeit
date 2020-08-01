@@ -167,6 +167,18 @@ bool DieZeit::getCurrentIssues(string htmlpage)
 
     //sort issues 
     sort(issues.begin(),issues.end(),greater<Issue>());
+
+    auto i = issues.size();
+
+    while (i >= 7)
+    {
+       if(!issues[i].isDownloaded())
+        {
+            issues.erase(issues.begin()+i);
+            i--;
+        }
+
+    }
     
     return true;
 }
