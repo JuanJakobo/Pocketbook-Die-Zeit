@@ -101,8 +101,7 @@ void EventHandler::loginAndDraw()
     zeit->saveIssuesToFile();
     CloseProgressbar();
     menu->updateActualizationDate();    
-    //TODO fix screen update
-    PartialUpdate(1,menu->getContentRect()->y,menu->getContentRect()->w,menu->getContentRect()->h);    
+    FullUpdate();
 }
 
 void EventHandler::mainMenuHandler(int index)
@@ -118,7 +117,7 @@ void EventHandler::mainMenuHandler(int index)
             zeit->logout();
             FillAreaRect(menu->getContentRect(),WHITE);
             loginScreen->drawLoginScreen();
-            PartialUpdate(1,menu->getContentRect()->y,menu->getContentRect()->w,menu->getContentRect()->h);
+            FullUpdate();
             break; 	
         //Settings
         case 104:
