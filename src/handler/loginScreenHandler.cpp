@@ -72,7 +72,14 @@ void LoginScreenHandler::keyboardHandler(char *text)
     {
         password = s.c_str();
         FillAreaRect(&passwordButton,WHITE);
-        DrawTextRect2(&passwordButton,s.c_str());
+
+        string pass;
+        for (auto i = 0; i < s.length(); i++)
+        {
+            pass+= "*";
+        }
+        
+        DrawTextRect2(&passwordButton,pass.c_str());
 
     }    
 
