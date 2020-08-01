@@ -49,7 +49,6 @@ class Issue
         tm      releaseDate;
         string  downloadUrl;
         string  path;
-        string  content;
         bool    hidden; 
         bool    downloaded;
 

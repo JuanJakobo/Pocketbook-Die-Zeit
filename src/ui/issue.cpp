@@ -44,16 +44,20 @@ Issue::Issue(istringstream& str_strm)
     downloadUrl = tmp;
 
     getline(str_strm, tmp, ',');
-    content = tmp;
 
-    getline(str_strm, tmp, ',');
-    path = tmp;
+    if(iv_access(tmp.c_str(), R_OK)==0)
+    {
+        path = tmp;
+        downloaded = true;
 
-    getline(str_strm, tmp, ',');
-    hidden = (tmp=="1") ? true : false;
-
-    getline(str_strm, tmp, ',');
-    downloaded = (tmp=="1") ? true : false;
+        getline(str_strm, tmp, ',');
+        hidden = (tmp=="1") ? true : false;
+    }
+    else
+    {
+        path = "";
+        downloaded = false;
+    }
 }
 
 void Issue::setRect(irect Rect)
@@ -81,8 +85,7 @@ bool Issue::operator== (const Issue& iss) const
 
 ostream& operator<< (ostream &out, Issue const& iss) {
     out << iss.title << ',' << iss.contentUrl << ',' << iss.getReleaseDate() << ','  
-        << iss.downloadUrl << ',' << iss.path << ',' << iss.content << ',' 
-        << iss.hidden << ',' << iss.downloaded << endl; 
+        << iss.downloadUrl << ',' << iss.path << ',' << iss.hidden << endl; 
     return out;
 }
 
@@ -269,5 +272,15 @@ void Issue::eliminate()
 
 void Issue::open()
 {
-    OpenBook(path.c_str(),"",0);
+    if(iv_access(path.c_str(), R_OK)==0)
+    {
+        OpenBook(path.c_str(),"",0);
+    }
+    else
+    {
+        Message(1,"Error","Issues not found, please download again.",100);        
+        path="";
+        downloaded=false;
+    }
+    
 }
