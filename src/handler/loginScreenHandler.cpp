@@ -86,8 +86,6 @@ int LoginScreenHandler::logginClicked(int x, int y)
     //TODO anpassen
     #define MAX_CMD_LEN      256
     char m_cmd_buffer[4 * MAX_CMD_LEN + 1];
-
-    //TODO if config not existent --> create  // add  warning
     
     if(IsInRect(x,y,&usernameButton))
     {

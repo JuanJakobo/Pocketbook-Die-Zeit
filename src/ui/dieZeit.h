@@ -25,7 +25,7 @@ const int    DIEZEIT_FONT_SIZE = 40;
 class DieZeit {
     public:
 
-        DieZeit(irect* ContentRect);
+        explicit DieZeit(irect* ContentRect);
 
         ~DieZeit();
 

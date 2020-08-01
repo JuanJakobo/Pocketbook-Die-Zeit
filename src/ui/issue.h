@@ -22,7 +22,7 @@ class Issue
     public:
 
         Issue(const string& Title, const string& ContentUrl, const tm& ReleaseDate);
-        Issue(istringstream& str_strm);
+        explicit Issue(istringstream& str_strm);
 
         friend ostream& operator<< (ostream &out, Issue const& iss);
         bool operator== (const Issue& iss) const;

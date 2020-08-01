@@ -16,7 +16,7 @@ class MenuHandler {
         /**
         * Defines fonds, sets global Event Handler and starts new content 
         */
-        MenuHandler(const std::string &name);
+        explicit MenuHandler(const std::string &name);
 
         /**
         * Destructor 
