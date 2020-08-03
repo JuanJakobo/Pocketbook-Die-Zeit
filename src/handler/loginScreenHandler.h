@@ -15,6 +15,8 @@
 
 using namespace std;
 
+const int MAX_CHAR_BUFF_LENGHT = 256;
+
 class LoginScreenHandler 
 {
     public:  
@@ -38,6 +40,8 @@ class LoginScreenHandler
         int     test;
         string  username;
         string  password;
+
+        char*   charBuffer;
 
         /**
         * Functions needed to call C function, handles the panel

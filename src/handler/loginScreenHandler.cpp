@@ -40,7 +40,7 @@ void LoginScreenHandler::drawLoginScreen()
     DrawTextRect2(&passwordButton,"Password");
 
     //loginButton = iRect(ScreenWidth()/2,contentRect->h/2,200,50,ALIGN_CENTER);
-    loginButton = iRect(ScreenWidth()/2,500,200,50,ALIGN_CENTER);
+    loginButton = iRect(ScreenWidth()/2-(200/2),500,200,50,ALIGN_CENTER);
 
     FillAreaRect(&loginButton, BLACK);
     SetFont(loginFont,WHITE);
@@ -83,27 +83,25 @@ void LoginScreenHandler::keyboardHandler(char *text)
 
     }    
 
-    //m_cmd_buffer = null after setting it
+    charBuffer = NULL;
 
 }
 
 
 int LoginScreenHandler::logginClicked(int x, int y)
 {
-    //TODO anpassen
-    #define MAX_CMD_LEN      256
-    char m_cmd_buffer[4 * MAX_CMD_LEN + 1];
+    charBuffer = new char[4 * MAX_CHAR_BUFF_LENGHT + 1];
     
     if(IsInRect(x,y,&usernameButton))
     {
         test = 1;
-        OpenKeyboard("Username", m_cmd_buffer, MAX_CMD_LEN-1, KBD_NORMAL, &keyboardHandlerStatic);
+        OpenKeyboard("Username", charBuffer, MAX_CHAR_BUFF_LENGHT-1, KBD_NORMAL, &keyboardHandlerStatic);
         return 1;
     }
     else if(IsInRect(x,y,&passwordButton))
     {
         test = 2;
-        OpenKeyboard("Password", m_cmd_buffer, MAX_CMD_LEN-1, KBD_NORMAL, &keyboardHandlerStatic);
+        OpenKeyboard("Password", charBuffer, MAX_CHAR_BUFF_LENGHT-1, KBD_PASSWORD, &keyboardHandlerStatic);
 
         return 1;
     }
