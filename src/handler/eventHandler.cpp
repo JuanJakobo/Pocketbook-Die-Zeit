@@ -24,6 +24,8 @@ EventHandler::EventHandler()
 
     zeit = new DieZeit(menu->getContentRect());
 
+    //test for login data
+
     if(zeit->getIssuesFromFile())
     {
         zeit->drawIssuesScreen();
@@ -40,7 +42,6 @@ EventHandler::EventHandler()
 
 EventHandler::~EventHandler()
 {
-    //TODO test ifworks
     zeit->saveIssuesToFile();
 
     delete menu;
@@ -77,7 +78,6 @@ void EventHandler::loginAndDraw()
         if(!zeit->login())
         {
             CloseProgressbar();
-            Message(ICON_ERROR, "Error", "Failed to login", 600);
             return;
         }
     }
@@ -86,20 +86,21 @@ void EventHandler::loginAndDraw()
         if(!zeit->login(loginScreen->getUsername(),loginScreen->getPassword()))
         {
             CloseProgressbar();
-            Message(ICON_ERROR, "Error", "Failed to login", 600);
+            //Message(ICON_ERROR, "Error", "Failed to login", 600);
+            //and then the user needs the possiblity to login again...
             return; 
         }
         delete loginScreen;
-        zeit->getIssuesFromFile();
     }
         
     UpdateProgressbar("Getting current issues",70);
     zeit->getIssuesInformation();
     UpdateProgressbar("Done",90);
-    FillAreaRect(menu->getContentRect(),WHITE);
-    zeit->drawIssuesScreen();
     zeit->saveIssuesToFile();
     CloseProgressbar();
+
+    FillAreaRect(menu->getContentRect(),WHITE);
+    zeit->drawIssuesScreen();
     menu->updateActualizationDate();    
     FullUpdate();
 }
@@ -112,24 +113,43 @@ void EventHandler::mainMenuHandler(int index)
         case 102:
             loginAndDraw();
             break; 
-        //Logout	 
+        //Settings	 
         case 103:
-            zeit->logout();
-            FillAreaRect(menu->getContentRect(),WHITE);
-            loginScreen->drawLoginScreen();
-            FullUpdate();
+
             break; 	
-        //Settings
+        //Logout
         case 104:
+            zeit->logout(EventHandler::logoutDialogHandlerStatic);
+
             break; 
         //Exit	 
         case 105:
-            zeit->saveIssuesToFile();
-            CloseApp();
+            if(zeit->isLoggedIn())
+                zeit->saveIssuesToFile();
+            //CloseApp();
             break;
         default:
             break;
  	}
+}
+
+void EventHandler::logoutDialogHandlerStatic(int button)
+{
+    eventHandlerStatic->logoutDialogHandler(button);
+}
+
+void EventHandler::logoutDialogHandler(int button)
+{
+    if(button==1)
+    {
+        remove(DIEZEIT_CSV_PATH.c_str());
+        rmdir(DIEZEIT_ISSUE_PATH.c_str());
+    } 
+
+    FillAreaRect(menu->getContentRect(),WHITE);
+    loginScreen = new LoginScreenHandler();
+    loginScreen->drawLoginScreen();
+    FullUpdate();
 }
 
 int EventHandler::pointerHandler(int type, int par1, int par2)
@@ -150,7 +170,6 @@ int EventHandler::pointerHandler(int type, int par1, int par2)
             {
                 if(loginScreen->logginClicked(par1,par2)==2)
                     loginAndDraw();
-                
                 return 1;
             }
             

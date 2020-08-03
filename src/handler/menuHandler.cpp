@@ -65,9 +65,10 @@ int MenuHandler::createMenu(bool loggedIn, iv_menuhandler handler)
         { ITEM_HEADER, 0, "Menu", NULL},
         //show logged in 
         { loggedIn ? ITEM_ACTIVE : ITEM_HIDDEN, 102, "Actualize", NULL}, 
-        { loggedIn ? ITEM_ACTIVE : ITEM_HIDDEN, 103, "Logout", NULL}, 
         //show always
-        { ITEM_ACTIVE, 104, "Settings", NULL},
+        { ITEM_ACTIVE, 103, "Settings", NULL},
+        { loggedIn ? ITEM_ACTIVE : ITEM_HIDDEN, 104, "Logout", NULL}, 
+        //show always
         { ITEM_ACTIVE, 105, "Exit"},
         { 0, 0, NULL, NULL}
     };

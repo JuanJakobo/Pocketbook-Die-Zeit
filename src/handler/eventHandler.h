@@ -77,6 +77,9 @@ class EventHandler
         * @return int returns if the event was handled
         */
         int pointerHandler(int type, int par1, int par2);
+
+        static void logoutDialogHandlerStatic(int button);
+        void logoutDialogHandler(int button);
 };
 
 #endif

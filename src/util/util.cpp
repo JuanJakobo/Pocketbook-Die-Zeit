@@ -19,7 +19,6 @@ size_t Util::writeCallback(void *contents, size_t size, size_t nmemb, void *user
 
 size_t Util::writeData(void *ptr, size_t size, size_t nmemb, FILE *stream) 
 {
-	//TODO error handling or ostream?
     size_t written =  iv_fwrite(ptr, size, nmemb, stream);
     return written;
 }

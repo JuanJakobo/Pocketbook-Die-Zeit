@@ -231,7 +231,6 @@ bool Issue::download()
     replace(temppath.begin(),temppath.end(),'/','_');
     replace(temppath.begin(),temppath.end(),' ','_');
 
-    //TODO check if available
     path = DIEZEIT_ISSUE_PATH + temppath + ".epub";
 
     CURL *curl = curl_easy_init();

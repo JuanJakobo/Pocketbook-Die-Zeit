@@ -36,7 +36,7 @@ class DieZeit {
         
         bool login();
         bool login(const string& Username, const string& Pass);
-        bool logout();
+        void logout(iv_dialoghandler handler);
 
         bool getCurrentIssues(string htmlpage);
         void drawIssuesScreen();
@@ -56,8 +56,6 @@ class DieZeit {
 
         string getUsername();        
         string getPassword();
-
-        static void DialogHandlerStatic(int Button);
 };
 
 

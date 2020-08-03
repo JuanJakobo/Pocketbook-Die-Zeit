@@ -64,7 +64,10 @@ bool DieZeit::login(const string& Username, const string& Pass)
         return false;
 
     if(Username.empty() || Pass.empty())
+    {
+        Message(ICON_ERROR, "Error", "Username/password not set.", 1200);
         return false;
+    }
     
     std::string readBuffer;
     CURLcode res;
@@ -94,9 +97,12 @@ bool DieZeit::login(const string& Username, const string& Pass)
             found = readBuffer.find("notification__header--error");
             if(found!=std::string::npos)
             {
-                Message(ICON_ERROR, "Error", "Failed to login", 600);
+                Message(ICON_ERROR, "Error", "Username/password incorrect.", 1200);
+                readBuffer = nullptr;
                 return false;
             }
+            if(iv_access(DIEZEIT_CONFIG_PATH.c_str(), W_OK)!=0)
+                iv_mkdir(DIEZEIT_CONFIG_PATH.c_str(),0777);
             this->setUsername(Username);
             this->setPassword(Pass);
             loggedIn = true;
@@ -106,17 +112,14 @@ bool DieZeit::login(const string& Username, const string& Pass)
     return false;
 }
 
-bool DieZeit::logout()
+void DieZeit::logout(iv_dialoghandler handler)
 {
     //https://meine.zeit.de/abmelden?url=https%3A//premium.zeit.de/
     remove(DIEZEIT_CONFIG_PATH.c_str());
     remove(DIEZEIT_COOOKIE_PATH.c_str());
     issues.clear();
     loggedIn = false;
-    //TODO add to delete old issues
-    //Dialog(2,"Result","Shall the current issues be deleted?","Yes","No",DieZeit::DialogHandlerStatic);
-
-    return true;
+    Dialog(2,"Result","Shall the current issues be deleted?","Yes","No",handler);
 }
 
 bool DieZeit::getCurrentIssues(string htmlpage)
@@ -220,16 +223,20 @@ void DieZeit::getIssuesInformation()
 
 bool DieZeit::saveIssuesToFile()
 {
-    ofstream outFile(DIEZEIT_CSV_PATH.c_str());
-
-    if(outFile)
+    if(issues.size() > 0)
     {
-        for (const auto &iss : issues)
+        ofstream outFile(DIEZEIT_CSV_PATH.c_str());
+
+        if(outFile)
         {
-            outFile << iss;       
+            for (const auto &iss : issues)
+            {
+                outFile << iss;       
+            }
+            return true;
         }
-        return true;
     }
+
     return false;    
 }
 
@@ -273,13 +280,4 @@ string DieZeit::getPassword()
     string pass = ReadSecret(dieZeitConfig,"password","");
     CloseConfigNoSave(dieZeitConfig);
     return pass;
-}
-
-void DieZeit::DialogHandlerStatic(int Button)
-{
-    if(Button==1)
-    {
-        remove(DIEZEIT_CSV_PATH.c_str());
-        rmdir(DIEZEIT_ISSUE_PATH.c_str());
-    } 
 }
