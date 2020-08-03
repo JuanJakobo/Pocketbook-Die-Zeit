@@ -11,7 +11,7 @@
 
 #include "menuHandler.h"
 #include "dieZeit.h"
-#include "loginScreenHandler.h"
+#include "loginScreen.h"
 
 
 class EventHandler 
@@ -46,7 +46,7 @@ class EventHandler
 
         static EventHandler *eventHandlerStatic;
         MenuHandler *menu;
-        LoginScreenHandler *loginScreen;
+        LoginScreen *loginScreen;
         DieZeit *zeit;
 
        /**

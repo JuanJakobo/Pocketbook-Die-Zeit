@@ -10,7 +10,8 @@
 #include "eventHandler.h"
 #include "menuHandler.h"
 #include "dieZeit.h"
-#include "loginScreenHandler.h"
+#include "loginScreen.h"
+
 #include <string>
 
 EventHandler * EventHandler::eventHandlerStatic;
@@ -32,7 +33,7 @@ EventHandler::EventHandler()
     }
     else
     {
-        loginScreen = new LoginScreenHandler();
+        loginScreen = new LoginScreen();
 
         loginScreen->drawLoginScreen();
     }
@@ -115,7 +116,6 @@ void EventHandler::mainMenuHandler(int index)
             break; 
         //Settings	 
         case 103:
-
             break; 	
         //Logout
         case 104:
@@ -147,7 +147,7 @@ void EventHandler::logoutDialogHandler(int button)
     } 
 
     FillAreaRect(menu->getContentRect(),WHITE);
-    loginScreen = new LoginScreenHandler();
+    loginScreen = new LoginScreen();
     loginScreen->drawLoginScreen();
     FullUpdate();
 }

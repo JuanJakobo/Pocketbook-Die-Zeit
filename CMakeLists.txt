@@ -47,8 +47,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(SOURCES ${CMAKE_SOURCE_DIR}/src/main.cpp 
 			${CMAKE_SOURCE_DIR}/src/handler/eventHandler.cpp 	
-			${CMAKE_SOURCE_DIR}/src/handler/loginScreenHandler.cpp 		
-			${CMAKE_SOURCE_DIR}/src/handler/menuHandler.cpp 		
+			${CMAKE_SOURCE_DIR}/src/handler/menuHandler.cpp 
+			${CMAKE_SOURCE_DIR}/src/ui/loginScreen.cpp 		
 			${CMAKE_SOURCE_DIR}/src/ui/dieZeit.cpp 		
 			${CMAKE_SOURCE_DIR}/src/ui/issue.cpp 		
 			${CMAKE_SOURCE_DIR}/src/util/util.cpp 		

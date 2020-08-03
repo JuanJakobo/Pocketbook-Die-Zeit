@@ -1,13 +1,13 @@
 //------------------------------------------------------------------
-// loginScreenHandler.h
+// loginScreen.h
 //
 // Author:           JuanJakobo          
 // Date:             26.07.2020
 // Description:        
 //-------------------------------------------------------------------
 
-#ifndef LOGIN_SCREEN_HANDLER
-#define LOGIN_SCREEN_HANDLER
+#ifndef LOGIN_SCREEN
+#define LOGIN_SCREEN
 
 #include "inkview.h"
 
@@ -17,12 +17,12 @@ using namespace std;
 
 const int MAX_CHAR_BUFF_LENGHT = 256;
 
-class LoginScreenHandler 
+class LoginScreen 
 {
     public:  
 
-        LoginScreenHandler();
-        ~LoginScreenHandler();
+        LoginScreen();
+        ~LoginScreen();
         
         void drawLoginScreen(); 
         int logginClicked(int x, int y);   
@@ -32,7 +32,7 @@ class LoginScreenHandler
          
     private:
 
-        static LoginScreenHandler *loginScreenHandlerStatic;
+        static LoginScreen *loginScreenStatic;
         ifont*  loginFont;  
         irect   loginButton;
         irect   usernameButton;

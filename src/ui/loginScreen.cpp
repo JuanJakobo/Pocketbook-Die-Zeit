@@ -1,5 +1,5 @@
 //------------------------------------------------------------------
-// loginScreenHandler.cpp
+// loginScreen.cpp
 //
 // Author:           JuanJakobo          
 // Date:             26.07.2020
@@ -7,26 +7,26 @@
 //-------------------------------------------------------------------
 
 #include "inkview.h"
-#include "loginScreenHandler.h"
+#include "loginScreen.h"
 #include "eventHandler.h"
 
 #include <string>
 
-LoginScreenHandler * LoginScreenHandler::loginScreenHandlerStatic;
+LoginScreen * LoginScreen::loginScreenStatic;
 
-LoginScreenHandler::LoginScreenHandler()
+LoginScreen::LoginScreen()
 {
-    loginScreenHandlerStatic = this;
+    loginScreenStatic = this;
     loginFont = OpenFont("LiberationMono",40,1);
 
 }
 
-LoginScreenHandler::~LoginScreenHandler()
+LoginScreen::~LoginScreen()
 {
     CloseFont(loginFont);
 }
 
-void LoginScreenHandler::drawLoginScreen()
+void LoginScreen::drawLoginScreen()
 {
 
     usernameButton = iRect(50,200,ScreenWidth()-50,75,ALIGN_CENTER);
@@ -47,13 +47,13 @@ void LoginScreenHandler::drawLoginScreen()
     DrawTextRect2(&loginButton,"Login"); 
 }
 
-void LoginScreenHandler::keyboardHandlerStatic(char *text) 
+void LoginScreen::keyboardHandlerStatic(char *text) 
 {   
-    loginScreenHandlerStatic->keyboardHandler(text);
+    loginScreenStatic->keyboardHandler(text);
 }
 
 
-void LoginScreenHandler::keyboardHandler(char *text)
+void LoginScreen::keyboardHandler(char *text)
 {
     if(!text)
         return;
@@ -88,7 +88,7 @@ void LoginScreenHandler::keyboardHandler(char *text)
 }
 
 
-int LoginScreenHandler::logginClicked(int x, int y)
+int LoginScreen::logginClicked(int x, int y)
 {
     charBuffer = new char[4 * MAX_CHAR_BUFF_LENGHT + 1];
     
