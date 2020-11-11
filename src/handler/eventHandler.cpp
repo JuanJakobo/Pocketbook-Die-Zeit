@@ -1,180 +1,185 @@
 //------------------------------------------------------------------
 // eventHandler.cpp
 //
-// Author:           JuanJakobo          
+// Author:           JuanJakobo
 // Date:             14.06.2020
-//   
+//
 //-------------------------------------------------------------------
 
 #include "inkview.h"
 #include "eventHandler.h"
 #include "menuHandler.h"
 #include "dieZeit.h"
-#include "loginScreen.h"
+#include "util.h"
 
-#include <string>
-
-EventHandler * EventHandler::eventHandlerStatic;
+std::unique_ptr<EventHandler> EventHandler::_eventHandlerStatic;
 
 EventHandler::EventHandler()
 {
     //create a event to create handlers
-    eventHandlerStatic = this;
+    _eventHandlerStatic = std::unique_ptr<EventHandler>(this);
 
-    menu = new MenuHandler("Die Zeit");
+    _listView = nullptr;
+    _loginView = nullptr;
 
-    zeit = new DieZeit(menu->getContentRect());
-
-    //test for login data
-
-    if(zeit->getIssuesFromFile())
+    if (_dieZeit.getIssuesFromFile())
     {
-        zeit->drawIssuesScreen();
+        _listView = std::unique_ptr<ListView>(new ListView(_menu.getContentRect(), _dieZeit.getItems()));
+    }
+    else if ((iv_access(DIEZEIT_CONFIG_PATH.c_str(), W_OK) == 0))
+    {
+        if (_dieZeit.login())
+            _listView = std::unique_ptr<ListView>(new ListView(_menu.getContentRect(), _dieZeit.getItems()));
     }
     else
     {
-        loginScreen = new LoginScreen();
-
-        loginScreen->drawLoginScreen();
+        _dieZeit.logout();
+        _loginView = std::unique_ptr<LoginView>(new LoginView(_menu.getContentRect()));
     }
-    
+
     FullUpdate();
-}
-
-EventHandler::~EventHandler()
-{
-    zeit->saveIssuesToFile();
-
-    delete menu;
-    delete zeit;
 }
 
 int EventHandler::eventDistributor(int type, int par1, int par2)
 {
     if (ISPOINTEREVENT(type))
-	    return EventHandler::pointerHandler(type,par1,par2);
+        return EventHandler::pointerHandler(type, par1, par2);
 
     return 0;
 }
 
-void EventHandler::DialogHandlerStatic(int Button)
+void EventHandler::DialogHandlerStatic(const int clicked)
 {
-    //TODO stop download? howto?
+    //TODO cannot interact with it
     CloseProgressbar();
 }
 
 void EventHandler::mainMenuHandlerStatic(int index)
 {
-    eventHandlerStatic->mainMenuHandler(index);
-}
-
-
-void EventHandler::loginAndDraw()
-{
-
-    OpenProgressbar(1,"Login to Zeit","Loggin in",10,DialogHandlerStatic);
-
-    if(zeit->isLoggedIn())
-    {
-        if(!zeit->login())
-        {
-            CloseProgressbar();
-            return;
-        }
-    }
-    else
-    {
-        if(!zeit->login(loginScreen->getUsername(),loginScreen->getPassword()))
-        {
-            CloseProgressbar();
-            //Message(ICON_ERROR, "Error", "Failed to login", 600);
-            //and then the user needs the possiblity to login again...
-            return; 
-        }
-        delete loginScreen;
-    }
-        
-    UpdateProgressbar("Getting current issues",70);
-    zeit->getIssuesInformation();
-    UpdateProgressbar("Done",90);
-    zeit->saveIssuesToFile();
-    CloseProgressbar();
-
-    FillAreaRect(menu->getContentRect(),WHITE);
-    zeit->drawIssuesScreen();
-    menu->updateActualizationDate();    
-    FullUpdate();
+    _eventHandlerStatic->mainMenuHandler(index);
 }
 
 void EventHandler::mainMenuHandler(int index)
 {
-    switch(index)
- 	{
-        //Actualize
-        case 102:
-            loginAndDraw();
-            break; 
-        //Settings	 
-        case 103:
-            break; 	
-        //Logout
-        case 104:
-            zeit->logout(EventHandler::logoutDialogHandlerStatic);
-
-            break; 
-        //Exit	 
-        case 105:
-            if(zeit->isLoggedIn())
-                zeit->saveIssuesToFile();
-            //CloseApp();
-            break;
-        default:
-            break;
- 	}
-}
-
-void EventHandler::logoutDialogHandlerStatic(int button)
-{
-    eventHandlerStatic->logoutDialogHandler(button);
-}
-
-void EventHandler::logoutDialogHandler(int button)
-{
-    if(button==1)
+    switch (index)
     {
-        remove(DIEZEIT_CSV_PATH.c_str());
-        rmdir(DIEZEIT_ISSUE_PATH.c_str());
-    } 
-
-    FillAreaRect(menu->getContentRect(),WHITE);
-    loginScreen = new LoginScreen();
-    loginScreen->drawLoginScreen();
-    FullUpdate();
+    //Actualize
+    case 102:
+        OpenProgressbar(ICON_INFORMATION, "Aktualiserung", "Start der Aktualisierung", 0, EventHandler::DialogHandlerStatic);
+        if (_dieZeit.login())
+        {
+            FillAreaRect(_menu.getContentRect(), WHITE);
+            _listView.reset(new ListView(_menu.getContentRect(), _dieZeit.getItems()));
+            FullUpdate();
+        }
+        CloseProgressbar();
+        break;
+    //Logout
+    case 103:
+    {
+        int dialogResult = DialogSynchro(ICON_QUESTION, "Frage", "Möchten Sie die lokal gespeicherten Ausgaben löschen?", "Ja", "Nein", "Abbrechen");
+        switch (dialogResult)
+        {
+        case 1:
+            _dieZeit.logout(true);
+            break;
+        case 3:
+            return;
+        default:
+            _dieZeit.logout();
+            break;
+        }
+        _listView.reset();
+        _loginView = std::unique_ptr<LoginView>(new LoginView(_menu.getContentRect()));
+        FullUpdate();
+        break;
+    }
+    //Exit
+    case 104:
+        CloseApp();
+        break;
+    default:
+        break;
+    }
 }
 
 int EventHandler::pointerHandler(int type, int par1, int par2)
 {
-    if(type==EVT_POINTERDOWN)
+    if (type == EVT_POINTERDOWN)
     {
-        if(IsInRect(par1,par2,menu->getMenuButtonRect())==1)
+        if (IsInRect(par1, par2, _menu.getMenuButtonRect()) == 1)
         {
-            return menu->createMenu(zeit->isLoggedIn(),EventHandler::mainMenuHandlerStatic);
+            return _menu.createMenu(_dieZeit.isLoggedIn(), EventHandler::mainMenuHandlerStatic);
         }
-        else if(IsInRect(par1,par2,menu->getContentRect())==1)
+        else if (_listView != nullptr)
         {
-            if(zeit->isLoggedIn())
+            int itemID = _listView->listClicked(par1, par2);
+            if (itemID != -1)
             {
-                return zeit->issueClicked(par1,par2);
+                if (_dieZeit.getItems()->at(itemID).getState() == FileState::ICLOUD)
+                {
+                    OpenProgressbar(1, "Herunterladen der Ausgabe", "Beginnen des Herunterladens", 0, EventHandler::DialogHandlerStatic);
+                    if (!_dieZeit.getItems()->at(itemID).download())
+                    {
+                        Message(ICON_WARNING, "Warnung", "Die Ausgabe konnte nicht heruntergeladen werden. Bitte versuchen Sie es erneut.", 1200);
+                    }
+                    CloseProgressbar();
+                }
+                else
+                {
+                    int dialogResult = 3;
+
+                    dialogResult = DialogSynchro(ICON_QUESTION, "Frage", "Was möchten Sie tun?", "Ausgabe lesen", "Ausgabe löschen", "Abbrechen");
+
+                    switch (dialogResult)
+                    {
+                    case 1:
+                        _dieZeit.getItems()->at(itemID).open();
+                        break;
+                    case 2:
+                        if (!_dieZeit.getItems()->at(itemID).removeFile())
+                            Message(ICON_WARNING, "Warnung", "Die Ausgabe konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.", 1200);
+                        if (_dieZeit.getItems()->at(itemID).getDownloadPath().empty())
+                        {
+                            _dieZeit.getItems()->erase(_dieZeit.getItems()->begin() + itemID);
+                            _listView.reset(new ListView(_menu.getContentRect(), _dieZeit.getItems()));
+                            //TODO set page
+                            _dieZeit.saveIssuesToFile();
+                            PartialUpdate(_menu.getContentRect()->x, _menu.getContentRect()->y, _menu.getContentRect()->w, _menu.getContentRect()->h);
+                            return 1;
+                        }
+                        break;
+                    default:
+                        return 1;
+                    }
+                }
+                _listView->drawEntry(itemID);
             }
-            else
+
+            PartialUpdate(_menu.getContentRect()->x, _menu.getContentRect()->y, _menu.getContentRect()->w, _menu.getContentRect()->h);
+
+            return 1;
+        }
+        else if (_loginView != nullptr)
+        {
+            if (_loginView->logginClicked(par1, par2) == 2)
             {
-                if(loginScreen->logginClicked(par1,par2)==2)
-                    loginAndDraw();
+                OpenProgressbar(ICON_INFORMATION, "Login", "Start der Logins", 0, EventHandler::DialogHandlerStatic);
+
+                if (_dieZeit.login(_loginView->getUsername(), _loginView->getPassword()))
+                {
+                    CloseProgressbar();
+                    _listView = std::unique_ptr<ListView>(new ListView(_menu.getContentRect(), _dieZeit.getItems()));
+                    _loginView.reset();
+                    PartialUpdate(_menu.getContentRect()->x, _menu.getContentRect()->y, _menu.getContentRect()->w, _menu.getContentRect()->h);
+                    return 1;
+                }
+                CloseProgressbar();
+
                 return 1;
             }
-            
+            return 1;
         }
     }
-
     return 0;
 }

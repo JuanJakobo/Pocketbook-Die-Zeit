@@ -1,58 +1,50 @@
 //------------------------------------------------------------------
 // eventHandler.h
 //
-// Author:           JuanJakobo          
+// Author:           JuanJakobo
 // Date:             14.06.2020
-// Description:      Handles the menubar and the menu   
+// Description:      Handles the menubar and the menu
 //-------------------------------------------------------------------
 
 #ifndef MENU_HANDLER
 #define MENU_HANDLER
 
 #include <string>
+#include <memory>
 
-class MenuHandler {
-    public:
-        /**
+class MenuHandler
+{
+public:
+    /**
         * Defines fonds, sets global Event Handler and starts new content 
         */
-        explicit MenuHandler(const std::string &name);
+    explicit MenuHandler(const std::string &name);
 
-        /**
-        * Destructor 
-        */
-        ~MenuHandler();
-        
-        irect*  getContentRect(){return &contentRect;};
-        irect*  getMenuButtonRect(){return &menuButtonRect;};
+    irect *getContentRect() { return &_contentRect; };
+    irect *getMenuButtonRect() { return &_menuButtonRect; };
 
-        int     createMenu(bool loggedIn, iv_menuhandler handler);
+    int createMenu(bool loggedIn, iv_menuhandler handler);
 
-        void    updateActualizationDate();
+private:
+    std::unique_ptr<ifont> _menuFont;
+    std::unique_ptr<ifont> _loadingFont;
 
-    private:
+    int _panelMenuBeginX;
+    int _panelMenuBeginY;
+    int _panelMenuHeight;
+    int _mainMenuWidth;
+    irect _menuButtonRect;
+    irect _loadingScreenRect;
 
-        ifont*  menuFont;
-        ifont*  accFont;
+    imenu _mainMenu;
+    irect _contentRect;
 
-        int     panelMenuBeginX;
-        int     panelMenuBeginY;
-        int     panelMenuHeight;
-
-        int     mainMenuWidth;
-        irect   menuButtonRect;
-
-        imenu   mainMenu;
-
-        irect   contentRect;
-
-        /**
+    /**
         * Functions needed to call C function, handles the panel
         * 
         * @return void
         */
-        static void panelHandlerStatic(); 
-
+    static void panelHandlerStatic();
 };
 
 #endif
