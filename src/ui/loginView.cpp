@@ -44,7 +44,7 @@ int LoginView::logginClicked(int x, int y)
     _temp = "";
     if (IsInRect(x, y, &_usernameButton))
     {
-        _keyboardValue = 1;
+        _target = KeyboardTarget::IUSERNAME;
         if (!_username.empty())
             _temp = _username;
         _temp.resize(KEYBOARD_STRING_LENGTH);
@@ -53,7 +53,7 @@ int LoginView::logginClicked(int x, int y)
     }
     else if (IsInRect(x, y, &_passwordButton))
     {
-        _keyboardValue = 2;
+        _target = KeyboardTarget::IPASSWORD;
         _temp.resize(KEYBOARD_STRING_LENGTH);
         OpenKeyboard("Passwort", &_temp[0], KEYBOARD_STRING_LENGTH, KBD_PASSWORD, &keyboardHandlerStatic);
         return 1;
@@ -82,15 +82,16 @@ void LoginView::keyboardHandler(char *text)
 
     string s(text);
     if (s.empty())
+    {
         return;
-
-    else if (_keyboardValue == 1)
+    }
+    else if (_target == KeyboardTarget::IUSERNAME)
     {
         _username = s.c_str();
         FillAreaRect(&_usernameButton, WHITE);
         DrawTextRect2(&_usernameButton, s.c_str());
     }
-    else
+    else if (_target == KeyboardTarget::IPASSWORD)
     {
         _password = s.c_str();
         FillAreaRect(&_passwordButton, WHITE);
@@ -103,4 +104,9 @@ void LoginView::keyboardHandler(char *text)
 
         DrawTextRect2(&_passwordButton, pass.c_str());
     }
+    else
+    {
+        Message(ICON_ERROR,"Fehler","Fehler bei der Eingabe. Bitte versuchen Sie es erneut.",1200);
+    }
+    
 }

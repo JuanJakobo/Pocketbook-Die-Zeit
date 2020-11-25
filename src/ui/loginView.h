@@ -16,6 +16,12 @@
 
 using std::string;
 
+enum KeyboardTarget 
+{
+    IUSERNAME,
+    IPASSWORD
+};
+
 const int KEYBOARD_STRING_LENGTH = 40;
 
 class LoginView
@@ -35,7 +41,7 @@ private:
     irect _loginButton;
     irect _usernameButton;
     irect _passwordButton;
-    int _keyboardValue;
+    KeyboardTarget _target;
     string _username;
     string _password;
     string _temp;
