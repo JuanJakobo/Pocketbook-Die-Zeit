@@ -24,7 +24,7 @@ LoginView::LoginView(const irect *contentRect) : _contentRect(contentRect)
 
     SetFont(_loginFont.get(), BLACK);
     FillAreaRect(_contentRect, WHITE);
-    
+
     _usernameButton = iRect(50, 400, ScreenWidth() - 100, 75, ALIGN_CENTER);
     DrawTextRect(_usernameButton.x, _usernameButton.y - 50, _usernameButton.w, _usernameButton.h, "Benutzername:", ALIGN_LEFT);
     DrawRect(_usernameButton.x - 1, _usernameButton.y - 1, _usernameButton.w + 2, _usernameButton.h + 2, BLACK);
@@ -41,19 +41,21 @@ LoginView::LoginView(const irect *contentRect) : _contentRect(contentRect)
 }
 int LoginView::logginClicked(int x, int y)
 {
-    _charBuffer = (char *)malloc(_bufferSize);
-
+    _temp = "";
     if (IsInRect(x, y, &_usernameButton))
     {
         _keyboardValue = 1;
-        OpenKeyboard("Benutzername", _charBuffer, MAX_CHAR_BUFF_LENGHT - 1, KBD_NORMAL, &keyboardHandlerStatic);
+        if (!_username.empty())
+            _temp = _username;
+        _temp.resize(KEYBOARD_STRING_LENGTH);
+        OpenKeyboard("Benutzername", &_temp[0],KEYBOARD_STRING_LENGTH, KBD_NORMAL, &keyboardHandlerStatic);
         return 1;
     }
     else if (IsInRect(x, y, &_passwordButton))
     {
         _keyboardValue = 2;
-        OpenKeyboard("Passwort", _charBuffer, MAX_CHAR_BUFF_LENGHT - 1, KBD_PASSWORD, &keyboardHandlerStatic);
-
+        _temp.resize(KEYBOARD_STRING_LENGTH);
+        OpenKeyboard("Passwort", &_temp[0], KEYBOARD_STRING_LENGTH, KBD_PASSWORD, &keyboardHandlerStatic);
         return 1;
     }
     else if (IsInRect(x, y, &_loginButton))
@@ -63,10 +65,8 @@ int LoginView::logginClicked(int x, int y)
             Message(ICON_ERROR, "Fehler", "Bitte tragen Sie Benutzernamen und Passwort ein.", 1200);
             return 1;
         }
-
         return 2;
     }
-
     return 0;
 }
 
@@ -103,6 +103,4 @@ void LoginView::keyboardHandler(char *text)
 
         DrawTextRect2(&_passwordButton, pass.c_str());
     }
-
-    free(_charBuffer);
 }
