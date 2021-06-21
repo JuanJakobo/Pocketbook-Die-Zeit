@@ -11,7 +11,6 @@
 #include "eventHandler.h"
 
 #include <string>
-#include <memory>
 
 using std::string;
 
@@ -20,28 +19,44 @@ LoginView *LoginView::_loginViewStatic;
 LoginView::LoginView(const irect *contentRect) : _contentRect(contentRect)
 {
     _loginViewStatic = this;
-    _loginFont = std::unique_ptr<ifont>(OpenFont("LiberationMono", 40, 1));
+    int contentHeight = contentRect->h / 2;
+    int contentWidth = _contentRect->w * 0.9;
 
-    SetFont(_loginFont.get(), BLACK);
+    int beginY = 0.4 * contentHeight;
+    int beginX = (_contentRect->w - contentWidth) / 2;
+
+    int contents = contentHeight / 7;
+
+    _loginFontHeight = contents / 2;
+
+    _loginFont = OpenFont("LiberationMono", _loginFontHeight, FONT_STD);
+    SetFont(_loginFont, BLACK);
     FillAreaRect(_contentRect, WHITE);
-
-    _usernameButton = iRect(50, 400, ScreenWidth() - 100, 75, ALIGN_CENTER);
-    DrawTextRect(_usernameButton.x, _usernameButton.y - 50, _usernameButton.w, _usernameButton.h, "Benutzername:", ALIGN_LEFT);
+    
+    _usernameButton = iRect(beginX, beginY + 2 * contents, contentWidth, contents, ALIGN_CENTER);
+    DrawTextRect(_usernameButton.x, _usernameButton.y - _loginFontHeight - _loginFontHeight/3, _usernameButton.w, _usernameButton.h, "Username:", ALIGN_LEFT);
     DrawRect(_usernameButton.x - 1, _usernameButton.y - 1, _usernameButton.w + 2, _usernameButton.h + 2, BLACK);
 
-    _passwordButton = iRect(50, 600, (ScreenWidth() - 100), 75, ALIGN_CENTER);
-    DrawTextRect(_passwordButton.x, _passwordButton.y - 50, _passwordButton.w, _passwordButton.h, "Passwort:", ALIGN_LEFT);
+    _passwordButton = iRect(beginX, beginY + 4 * contents, contentWidth, contents, ALIGN_CENTER);
+    DrawTextRect(_passwordButton.x, _passwordButton.y - _loginFontHeight - _loginFontHeight/4, _passwordButton.w, _passwordButton.h, "Password:", ALIGN_LEFT);
     DrawRect(_passwordButton.x - 1, _passwordButton.y - 1, _passwordButton.w + 2, _passwordButton.h + 2, BLACK);
 
-    _loginButton = iRect(50, 750, (ScreenWidth() - 100), 75, ALIGN_CENTER);
+    _loginButton = iRect(beginX, beginY + 6 * contents, contentWidth, contents, ALIGN_CENTER);
 
     FillAreaRect(&_loginButton, BLACK);
-    SetFont(_loginFont.get(), WHITE);
+    SetFont(_loginFont, WHITE);
     DrawTextRect2(&_loginButton, "Login");
 }
+
+LoginView::~LoginView()
+{
+    CloseFont(_loginFont);
+}
+
 int LoginView::logginClicked(int x, int y)
 {
     _temp = "";
+
     if (IsInRect(x, y, &_usernameButton))
     {
         _target = KeyboardTarget::IUSERNAME;

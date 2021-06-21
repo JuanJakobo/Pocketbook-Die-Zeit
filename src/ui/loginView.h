@@ -12,11 +12,10 @@
 #include "inkview.h"
 
 #include <string>
-#include <memory>
 
 using std::string;
 
-enum KeyboardTarget 
+enum KeyboardTarget
 {
     IUSERNAME,
     IPASSWORD
@@ -27,16 +26,31 @@ const int KEYBOARD_STRING_LENGTH = 40;
 class LoginView
 {
 public:
+    /**
+        * Draws the loginView includin URL, Username and Password buttons inside the contentRect 
+        * 
+        * @param contentRect area where the loginscreen shall be drawn
+        */
     LoginView(const irect *contentRect);
 
+    ~LoginView();
+
+    /**
+        * Checks which part of the loginscreen is shown and reacts accordingly
+        * 
+        * @param x x-coordinate
+        * @param y y-coordinate
+        * @return int if event has been handled. Returns 2 if login has been clicked and all items are set
+        */
     int logginClicked(int x, int y);
 
     string getUsername() { return _username; };
     string getPassword() { return _password; };
-    
+
 private:
     static LoginView *_loginViewStatic;
-    std::unique_ptr<ifont> _loginFont;
+    int _loginFontHeight;
+    ifont *_loginFont;
     const irect *_contentRect;
     irect _loginButton;
     irect _usernameButton;
@@ -53,6 +67,11 @@ private:
         */
     static void keyboardHandlerStatic(char *text);
 
+    /**
+        * Called by the static method and saves and writes the input from the user to the screen
+        * 
+        * @param text text that has been typed in by the user 
+        */ 
     void keyboardHandler(char *text);
 };
 
