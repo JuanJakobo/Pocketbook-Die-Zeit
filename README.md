@@ -11,9 +11,6 @@ Download and unzip the file from releases and place the nextcloud.app into the "
 ### Tested on
 * Pocketbook HD3 (PB623) (V. U623.6.0.926)
 
-### Known issues
-* The main menu of the PB shows new books only if it turns into sleep modus. Otherwise the new books can only be opened from the nextcloud applicaton.
-
 ## Disclamer
 
 Use as your own risk! 
