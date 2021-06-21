@@ -31,6 +31,23 @@ public:
         */
     ListView(const irect *contentRect, const std::shared_ptr<vector<Item>> items);
 
+    ~ListView();
+
+    /**
+        * Navigates to the next page
+        */
+    void nextPage() { this->actualizePage(_shownPage + 1); };
+
+    /**
+        * Navigates to the prev page
+        */
+    void prevPage() { this->actualizePage(_shownPage - 1); };
+
+    /**
+        * Navigates to first page
+        */
+    void firstPage() { this->actualizePage(1); };
+
     /**
         * draws the header including an item to navigate a page up
         * 
@@ -50,9 +67,6 @@ public:
         * 
         */
     void drawEntries();
-
-    void actualizePage(int _pageToShown);
-
 
     /**
         * Checkes if the listview has been clicked and either changes the page or returns item ID
@@ -78,5 +92,7 @@ private:
     int _footerHeight = 100;
     int _headerHeight = 40;
     int _itemCount = 7;
+
+    void actualizePage(int pageToShow);
 };
 #endif

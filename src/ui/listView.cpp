@@ -104,22 +104,24 @@ void ListView::drawEntries()
     }
 }
 
-void ListView::actualizePage(int _pageToShown)
+void ListView::actualizePage(int pageToShow)
 {
-    if (_pageToShown > _page)
+    if (pageToShow > _page)
     {
-        Message(ICON_INFORMATION, "Info", "Sie haben die letzte Seite erreicht.", 1200);
+        Message(ICON_INFORMATION, "Information", "Sie haben die letzte Seite erreicht.", 1200);
     }
-    else if (_pageToShown < 1)
+    else if (pageToShow < 1)
     {
-        Message(ICON_INFORMATION, "Info", "Sie sind bereits auf der ersten Seite.", 1200);
+        Message(ICON_INFORMATION, "Information", "Sie sind bereits auf der ersten Seite.", 1200);
     }
     else
     {
-        _shownPage = _pageToShown;
-        FillArea(_contentRect->x, _contentRect->y + _headerHeight, _contentRect->w, _contentRect->h, WHITE);
+        _shownPage = pageToShow;
+        FillArea(_contentRect->x, _contentRect->y, _contentRect->w, _contentRect->h, WHITE);
         drawEntries();
         drawFooter();
+        drawHeader("Letzte Aktualisierung:" + Util::readStringSetting("LastActualisation"));
+        PartialUpdate(_contentRect->x, _contentRect->y, _contentRect->w, _contentRect->h);
     }
 }
 
@@ -127,15 +129,15 @@ int ListView::listClicked(int x, int y)
 {
     if (IsInRect(x, y, &_firstPageButton))
     {
-        actualizePage(1);
+        firstPage();
     }
     else if (IsInRect(x, y, &_nextPageButton))
     {
-        actualizePage(_shownPage+1);
+        nextPage();
     }
     else if (IsInRect(x, y, &_lastPageButton))
     {
-        actualizePage(_shownPage-1);
+        prevPage();
     }
     else
     {
