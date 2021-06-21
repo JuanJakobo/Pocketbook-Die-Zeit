@@ -11,6 +11,7 @@
 #include "menuHandler.h"
 #include "dieZeit.h"
 #include "util.h"
+#include "log.h"
 
 std::unique_ptr<EventHandler> EventHandler::_eventHandlerStatic;
 
@@ -123,6 +124,12 @@ int EventHandler::pointerHandler(int type, int par1, int par2)
                     {
                         Message(ICON_WARNING, "Warnung", "Die Ausgabe konnte nicht heruntergeladen werden. Bitte versuchen Sie es erneut.", 1200);
                     }
+                    else
+                    {
+                        Util::updatePBLibrary(5);
+                        Log::writeLog("updating PB lib");
+                    }
+
                     CloseProgressbar();
                 }
                 else
@@ -137,17 +144,18 @@ int EventHandler::pointerHandler(int type, int par1, int par2)
                         _dieZeit.getItems()->at(itemID).open();
                         break;
                     case 2:
+                        OpenProgressbar(ICON_INFORMATION, "Information", "Die Ausgabe wird entfernt.", 0, EventHandler::DialogHandlerStatic);
                         if (!_dieZeit.getItems()->at(itemID).removeFile())
                             Message(ICON_WARNING, "Warnung", "Die Ausgabe konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.", 1200);
                         if (_dieZeit.getItems()->at(itemID).getDownloadPath().empty())
                         {
                             _dieZeit.getItems()->erase(_dieZeit.getItems()->begin() + itemID);
                             _listView.reset(new ListView(_menu.getContentRect(), _dieZeit.getItems()));
-                            //TODO set page
                             _dieZeit.saveIssuesToFile();
                             PartialUpdate(_menu.getContentRect()->x, _menu.getContentRect()->y, _menu.getContentRect()->w, _menu.getContentRect()->h);
                             return 1;
                         }
+                        CloseProgressbar();
                         break;
                     default:
                         return 1;

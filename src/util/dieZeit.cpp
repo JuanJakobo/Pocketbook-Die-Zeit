@@ -122,8 +122,10 @@ void DieZeit::logout(bool deleteFiles)
 {
     if (deleteFiles)
     {
-        string cmd = "rm -rf " + DIEZEIT_PATH + "/";
+        UpdateProgressbar("Die Ausgaben werden entfernt.", 50);
+        string cmd = "rm -rf " + DIEZEIT_ISSUE_PATH + "/";
         system(cmd.c_str());
+        Util::updatePBLibrary(5);
     }
     //https://meine.zeit.de/abmelden?url=https%3A//premium.zeit.de/
     remove(DIEZEIT_CONFIG_PATH.c_str());

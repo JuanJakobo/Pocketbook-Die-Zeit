@@ -214,5 +214,7 @@ bool Item::removeFile()
         return false;
 
     _state = FileState::ICLOUD;
+
+    Util::updatePBLibrary(5);
     return true;
 }
