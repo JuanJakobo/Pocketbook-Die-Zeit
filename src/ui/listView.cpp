@@ -29,7 +29,19 @@ ListView::ListView(const irect *contentRect, const std::shared_ptr<vector<Item>>
 
     _entries.clear();
 
-    int entrySize = (_contentRect->h - _footerHeight - _headerHeight) / _itemCount;
+    int entrySize = _contentRect->h / (_itemCount + 1);
+
+    _headerHeight = 0.25 * entrySize;
+    _footerHeight = 0.75 * entrySize;
+
+    _headerFontHeight = 0.8 * _headerHeight;
+    _footerFontHeight = 0.3 * _footerHeight;
+    _entryFontHeight = 0.2 * entrySize;
+
+    _headerFont = OpenFont("LiberationMono", _headerFontHeight, FONT_STD);
+    _footerFont = OpenFont("LiberationMono", _footerFontHeight, FONT_STD);
+    _entryFont = OpenFont("LiberationMono", _entryFontHeight, FONT_STD);
+    _entryFontBold = OpenFont("LiberationMono-Bold", _entryFontHeight, FONT_BOLD);
 
     _page = 1;
     _shownPage = _page;

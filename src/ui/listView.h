@@ -78,6 +78,11 @@ public:
     int listClicked(int x, int y);
 
 private:
+    int _footerHeight;
+    int _headerHeight;
+    int _headerFontHeight;
+    int _footerFontHeight;
+    int _entryFontHeight;
     const irect *_contentRect;
     const std::shared_ptr<vector<Item>> _items =  nullptr;
     vector<ListViewEntry> _entries;
@@ -87,10 +92,9 @@ private:
     int _shownPage;
     irect _pageIcon;
     irect _nextPageButton;
-    irect _lastPageButton;
+    irect _prevPageButton;
     irect _firstPageButton;
-    int _footerHeight = 100;
-    int _headerHeight = 40;
+    irect _lastPageButton;
     int _itemCount = 7;
 
     void actualizePage(int pageToShow);
