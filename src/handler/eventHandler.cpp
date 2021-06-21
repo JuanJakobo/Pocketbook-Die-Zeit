@@ -45,6 +45,8 @@ int EventHandler::eventDistributor(int type, int par1, int par2)
 {
     if (ISPOINTEREVENT(type))
         return EventHandler::pointerHandler(type, par1, par2);
+    else if (ISKEYEVENT(type))
+        return EventHandler::keyHandler(type, par1, par2);
 
     return 0;
 }
@@ -189,5 +191,37 @@ int EventHandler::pointerHandler(int type, int par1, int par2)
             return 1;
         }
     }
+    return 0;
+}
+
+int EventHandler::keyHandler(const int type, const int par1, const int par2)
+{
+    if (type == EVT_KEYPRESS)
+    {
+        //menu button
+        if (par1 == 23)
+        {
+            _listView->firstPage();
+        }
+        else if (_listView != nullptr)
+        {
+            //left button
+            if (par1 == 24)
+            {
+                _listView->prevPage();
+            }
+            //right button
+            else if (par1 == 25)
+            {
+                _listView->nextPage();
+            }
+        }
+        else
+        {
+            return 0;
+        }
+        return 1;
+    }
+
     return 0;
 }

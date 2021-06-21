@@ -71,6 +71,16 @@ private:
         * @return int returns if the event was handled
         */
     int pointerHandler(int type, int par1, int par2);
+
+    /**
+        * Handles key Events
+        * 
+        * @param type event type
+        * @param par1 first argument of the event (is the key)
+        * @param par2 second argument of the event
+        * @return int returns if the event was handled
+        */
+    int keyHandler(const int type, const int par1, const int par2);
 };
 
 #endif
