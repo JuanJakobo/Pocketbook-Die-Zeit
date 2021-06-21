@@ -139,8 +139,14 @@ string Item::getReleaseDateString() const
 
 bool Item::getInformation()
 {
+    //return if download link is in new format
     if (!_downloadPath.empty())
-        return true;
+    {
+        size_t found = _downloadPath.find("https://medien.zeit.de/restricted/");
+
+        if (found != std::string::npos)
+            return true;
+    }
 
     if (!Util::connectToNetwork())
         return false;
@@ -163,24 +169,42 @@ bool Item::getInformation()
 
         if (res == CURLE_OK)
         {
-            // view-source:https://epaper.zeit.de/abo/diezeit/20.05.2020
-            //   <a class="btn btn-default btn-block btn-border btn-md" href="https://premium.zeit.de/system/files/2020-21/epub/die_zeit_2020_22.epub" data-wt-click="{ct: '#download_zeit+magazin', ck: {4: 'undefined', 5: 'content', 6: 'reader', 9: 'epub'}}">
-            //      EPUB FÜR E-READER LADEN    </a>
-            size_t found = readBuffer.find("https://premium.zeit.de/system");
 
-            if (found != std::string::npos)
+            long response_code;
+            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+            switch (response_code)
             {
-                readBuffer = readBuffer.substr(found, 200);
-                found = readBuffer.find('"');
-                _downloadPath = readBuffer.substr(0, found);
-                return true;
+            case 200:
+            {
+                // view-source:https://epaper.zeit.de/abo/diezeit/20.05.2020
+                //   <a class="btn btn-default btn-block btn-border btn-md" href="https://premium.zeit.de/system/files/2020-21/epub/die_zeit_2020_22.epub" data-wt-click="{ct: '#download_zeit+magazin', ck: {4: 'undefined', 5: 'content', 6: 'reader', 9: 'epub'}}">
+                //      EPUB FÜR E-READER LADEN    </a>
+
+                //    <a class="btn btn-default btn-block btn-border btn-md" href="https://medien.zeit.de/restricted/4fb5c38b-61eb-4378-af6d-02233bff6494.epub" data-wt-click="{ct: '#download_zeit+magazin', ck: {4: 'undefined', 5: 'content', 6: 'reader', 9: 'epub'}}">
+                // EPUB FÜR E-READER LADEN    </a>
+
+                size_t found = readBuffer.find("https://medien.zeit.de/restricted/");
+
+                if (found != std::string::npos)
+                {
+                    readBuffer = readBuffer.substr(found, 200);
+                    found = readBuffer.find('"');
+                    _downloadPath = readBuffer.substr(0, found);
+                    Log::writeLog(_downloadPath);
+                    return true;
+                }
+                else
+                {
+                    Message(ICON_ERROR, "Fehler", "Fehler beim Parsen der DownloadURL.", 1200);
+                    return false;
+                }
+
+                break;
             }
-            else
-            {
-                //TODO include release date to exclude issues that are too new...
-                //Message(ICON_ERROR, "Fehler", "Fehler beim Parsen der URL.", 1200);
-                //return false;
-                return true;
+            default:
+                Message(ICON_ERROR, "Error", ("An unknown error occured. (Curl Response Code " + std::to_string(response_code) + ")").c_str(), 2000);
+                break;
             }
         }
         else
@@ -216,6 +240,8 @@ bool Item::download()
     {
         fp = iv_fopen(_localPath.c_str(), "wb");
         curl_easy_setopt(curl, CURLOPT_URL, _downloadPath.c_str());
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
         //curl_easy_setopt(curl, CURLOPT_COOKIESESSION, true);
         curl_easy_setopt(curl, CURLOPT_COOKIEFILE, DIEZEIT_COOOKIE_PATH.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Util::writeData);
@@ -229,12 +255,22 @@ bool Item::download()
 
         if (res == CURLE_OK)
         {
-            _state = FileState::ISYNCED;
-            CloseProgressbar();
-            return true;
+
+            long response_code;
+            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+            if (response_code == 200)
+            {
+                _state = FileState::ISYNCED;
+                return true;
+            }
+
+            else
+                Message(ICON_ERROR, "Error", ("An unknown error occured. (Curl Response Code " + std::to_string(response_code) + ")").c_str(), 2000);
+
+            return false;
         }
     }
-    CloseProgressbar();
     return false;
 }
 
