@@ -1,49 +1,53 @@
-#
-# This file has been adapted from the PocketBook SDK 
-#
-
-PROJECT (Pocketbook-Die_Zeit)
 CMAKE_MINIMUM_REQUIRED (VERSION 3.10.1)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+PROJECT (Pocketbook-Die_Zeit VERSION 0.3)
 
+set(CMAKE_CXX_STANDARD 14)
 
-SET (TOOLCHAIN_PATH "../../SDK/pocketbook-sdk5-master")
-SET (TOOLCHAIN_PREFIX "arm-obreey-linux-gnueabi")
-SET (TOOLCHAIN_INSTALL "sysroot/usr")
-ADD_DEFINITIONS(-DPLATFORM_FC)
+set(CMAKE_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_VERSION 1.0)
+set(CMAKE_SYSTEM_PROCESSOR armv7a)
+set(BUILD_SHARED_LIBS ON)
 
-
-IF (NOT CMAKE_BUILD_TYPE)
-	SET (CMAKE_BUILD_TYPE Debug)
-ENDIF (NOT CMAKE_BUILD_TYPE)
-
-#For target "ARM"
-SET(CMAKE_INSTALL_PREFIX "${TOOLCHAIN_PATH}/${TOOLCHAIN_PREFIX}/${TOOLCHAIN_INSTALL}" CACHE PATH "Install path prefix" FORCE)
-
-SET (CMAKE_C_COMPILER ${CMAKE_CURRENT_SOURCE_DIR}/${TOOLCHAIN_PATH}/bin/${TOOLCHAIN_PREFIX}-gcc)
-SET (CMAKE_CXX_COMPILER ${CMAKE_CURRENT_SOURCE_DIR}/${TOOLCHAIN_PATH}/bin/${TOOLCHAIN_PREFIX}-g++)
-SET (CMAKE_LINK ${CMAKE_CURRENT_SOURCE_DIR}/${TOOLCHAIN_PATH}/bin/${TOOLCHAIN_PREFIX}-g++)
-SET (CMAKE_ARR ${CMAKE_CURRENT_SOURCE_DIR}/${TOOLCHAIN_PATH}/bin/${TOOLCHAIN_PREFIX}-arr)
-SET (CMAKE_STRIP ${CMAKE_CURRENT_SOURCE_DIR}/${TOOLCHAIN_PATH}/bin/${TOOLCHAIN_PREFIX}-strip)
-
-SET (TARGET_INCLUDE "")
-
-SET (TARGET_LIB pthread inkview freetype z curl)
-
-IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-		MESSAGE (STATUS "Build for ARM Debug")
-		SET (CMAKE_C_FLAGS_DEBUG "-DDEBUG -fsigned-char -W -Wall -Wextra -Wno-format-y2k -fomit-frame-pointer -O0 -g3")
-		SET (CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -fsigned-char -W -Wall -Wextra -Wno-format-y2k -fomit-frame-pointer -O0 -g3")
-ELSE ()
-		MESSAGE (STATUS "Build for ARM Release")
-		SET (CMAKE_C_FLAGS_RELEASE "-DNDEBUG -s -fsigned-char -W -Wall -Wextra -O2 -Wno-format-y2k -fomit-frame-pointer")
-		SET (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -s -fsigned-char -W -Wall -Wextra -O2 -Wno-format-y2k -fomit-frame-pointer")
-ENDIF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-
+SET (TOOLCHAIN_PATH "../../SDK/SDK_6.3.0/SDK-B288")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+set(CMAKE_FIND_ROOT_PATH "${TOOLCHAIN_PATH}/usr/arm-obreey-linux-gnueabi/sysroot/")
+set(CMAKE_INCLUDE_PATH "/usr/include")
+message("CMAKE_FIND_ROOT_PATH=${CMAKE_FIND_ROOT_PATH}")
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+include_directories("${TOOLCHAIN_PATH}/usr/arm-obreey-linux-gnueabi/sysroot/usr/include/freetype2")
+list(APPEND CMAKE_MODULE_PATH "${TOOLCHAIN_PATH}/usr/share/cmake/modules")
+list(REMOVE_DUPLICATES CMAKE_MODULE_PATH)
+set(QT_QMAKE_EXECUTABLE "${TOOLCHAIN_PATH}/usr/arm-obreey-linux-gnueabi/sysroot/usr/qt5/bin/qmake")
+set(CMAKE_PREFIX_PATH "${TOOLCHAIN_PATH}/usr/arm-obreey-linux-gnueabi/sysroot/ebrmain/lib/cmake")
+
+set(CMAKE_C_COMPILER "${TOOLCHAIN_PATH}/usr/bin/arm-obreey-linux-gnueabi-clang")
+set(CMAKE_CXX_COMPILER "${TOOLCHAIN_PATH}/usr/bin/arm-obreey-linux-gnueabi-clang++")
+set(CMAKE_C_FLAGS "-fsigned-char -Werror-return-type" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS "-fsigned-char -Werror-return-type" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O2 -pipe -fomit-frame-pointer -march=armv7-a -mtune=cortex-a8 -mfpu=neon -mfloat-abi=softfp " CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG -O2 -pipe -fomit-frame-pointer -march=armv7-a -mtune=cortex-a8 -mfpu=neon -mfloat-abi=softfp " CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_DEBUG "-DDEBUG -O0 -g -pipe -fomit-frame-pointer -march=armv7-a -mtune=cortex-a8 -mfpu=neon -mfloat-abi=softfp " CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -O0 -g -pipe -fomit-frame-pointer -march=armv7-a -mtune=cortex-a8 -mfpu=neon -mfloat-abi=softfp " CACHE STRING "" FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-s" CACHE STRING "" FORCE)
+set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "-s" CACHE STRING "" FORCE)
+set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-z,defs" CACHE STRING "" FORCE)
+
+add_definitions(-DPLATFORM_FC)
+set(PB_PLATFORM "ARM" CACHE STRING "ARM|PC Readonly!")
+
+set(CMAKE_INSTALL_PREFIX "${TOOLCHAIN_PATH}/usr/arm-obreey-linux-gnueabi/sysroot/usr/local" CACHE PATH "Installation Prefix")
+set(CMAKE_BUILD_TYPE Release CACHE STRING "Debug|Release|RelWithDebInfo|MinSizeRel")
+set(ENV{PKG_CONFIG_DIR} "")
+set(ENV{PKG_CONFIG_LIBDIR} ${CMAKE_FIND_ROOT_PATH}/usr/lib/pkgconfig)
+set(ENV{PKG_CONFIG_SYSROOT_DIR} ${CMAKE_FIND_ROOT_PATH})
+set(ENV{LD_LIBRARY_PATH} ${TOOLCHAIN_PATH}/usr/lib)
+list(APPEND PB_LINK_DIRECTORIES "${TOOLCHAIN_PATH}/usr/arm-obreey-linux-gnueabi/sysroot/usr/lib")
+list(APPEND PB_LINK_DIRECTORIES "${TOOLCHAIN_PATH}/usr/arm-obreey-linux-gnueabi/sysroot/usr/local/lib")
+list(APPEND PB_INCLUDE_DIRECTORIES "${TOOLCHAIN_PATH}/usr/arm-obreey-linux-gnueabi/sysroot/usr/include")
 
 set(SOURCES ${CMAKE_SOURCE_DIR}/src/main.cpp 
 			${CMAKE_SOURCE_DIR}/src/handler/eventHandler.cpp 	
@@ -53,19 +57,19 @@ set(SOURCES ${CMAKE_SOURCE_DIR}/src/main.cpp
 			${CMAKE_SOURCE_DIR}/src/ui/listViewEntry.cpp 
 			${CMAKE_SOURCE_DIR}/src/util/dieZeit.cpp 		
 			${CMAKE_SOURCE_DIR}/src/util/item.cpp 		
-			${CMAKE_SOURCE_DIR}/src/util/util.cpp 		
+			${CMAKE_SOURCE_DIR}/src/util/util.cpp
+			${CMAKE_SOURCE_DIR}/src/util/log.cpp
 )
 
 add_executable(DieZeit.app ${SOURCES})
 
 include_directories(
-	$(TARGET_INCLUDE)
     ${CMAKE_SOURCE_DIR}/src/handler/
-	${CMAKE_SOURCE_DIR}/src/ui/
     ${CMAKE_SOURCE_DIR}/src/util/
+    ${CMAKE_SOURCE_DIR}/src/ui/
 )
 
-TARGET_LINK_LIBRARIES (DieZeit.app ${TARGET_LIB})
+TARGET_LINK_LIBRARIES (DieZeit.app PRIVATE inkview freetype curl)
 
 INSTALL (TARGETS DieZeit.app)
 
