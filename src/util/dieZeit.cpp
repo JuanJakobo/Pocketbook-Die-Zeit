@@ -251,14 +251,12 @@ bool DieZeit::getCurrentIssues(string &htmlpage)
 
             //Item temp = Item(title, contentUrl, releaseDate);
             Item temp = Item(title, contentUrl);
-
             if (find(_items->begin(), _items->end(), temp) == _items->end())
                 _items->push_back(temp);
         }
     } while (found != std::string::npos);
 
-    //TODO sort Items
-    //sort(_items->begin(), _items->end(), std::greater<Item>());
+    sort(_items->begin(), _items->end(), std::greater<Item>());
 
     return true;
 }

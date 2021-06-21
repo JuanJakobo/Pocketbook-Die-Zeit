@@ -71,15 +71,46 @@ Item::Item(const string &localPath) : _localPath(localPath)
 
 bool Item::operator>(const Item &iss) const
 {
-    //TODO compare by title and not releasedate, than release date is not needed anymore
-    /*
-    if (_releaseDate.tm_year > iss._releaseDate.tm_year)
+    //here as old versions dont have this information in csv.
+    //DIE ZEIT 48/2020
+
+    int releaseYear1 = 0;
+    int releaseEdition1 = 0;
+    int releaseYear2 = 0;
+    int releaseEdition2 = 0;
+
+    if (iss.getTitle().empty())
         return true;
-    if (_releaseDate.tm_year == iss._releaseDate.tm_year && _releaseDate.tm_mon > iss._releaseDate.tm_mon)
+
+    std::size_t foundAt;
+
+    string title1 = iss.getTitle();
+
+    foundAt = title1.find("/");
+
+    if (foundAt > 2)
+    {
+        releaseYear1 = std::stoi(title1.substr(foundAt + 1));
+        releaseEdition1 = std::stoi(title1.substr(foundAt - 2, foundAt));
+    }
+
+    if (_title.empty())
+        return false;
+
+    string title2 = _title;
+    foundAt = title2.find("/");
+
+    if (foundAt > 2)
+    {
+        releaseYear2 = std::stoi(title2.substr(foundAt + 1));
+        releaseEdition2 = std::stoi(title2.substr(foundAt - 2, foundAt));
+    }
+
+    if (releaseYear2 > releaseYear1)
         return true;
-    if (_releaseDate.tm_year == iss._releaseDate.tm_year && _releaseDate.tm_mon == iss._releaseDate.tm_mon && _releaseDate.tm_mday > iss._releaseDate.tm_mday)
+
+    if (releaseYear2 == releaseYear1 && releaseEdition2 > releaseEdition1)
         return true;
-    */
     return false;
 }
 
