@@ -10,6 +10,7 @@
 #include "dieZeit.h"
 #include "util.h"
 #include "item.h"
+#include "log.h"
 
 #include <string>
 #include <curl/curl.h>
@@ -52,21 +53,23 @@ bool DieZeit::login()
 
 bool DieZeit::login(const string &Username, const string &Pass)
 {
-    UpdateProgressbar("Versuche Verbindung mit dem Internet herzustellen", 10);
+    UpdateProgressbar("Versuche Verbindung mit dem Internet herzustellen.", 10);
 
     if (!Util::connectToNetwork())
     {
-        Message(ICON_WARNING, "Warnung", "Konnte keine Verbindung zum Internet herstellen.", 200);
+        Message(ICON_WARNING, "Warnung", "Es konnte keine Verbindung zum Internet hergestellt werden.", 200);
         return false;
     }
 
     if (Username.empty() || Pass.empty())
     {
-        Message(ICON_ERROR, "Fehler", "Benutzername und/oder Password nicht gefunden", 1200);
+        Message(ICON_ERROR, "Fehler", "Benutzername und/oder Password nicht gefunden.", 1200);
         return false;
     }
 
-    UpdateProgressbar("Verbinden mit Zeit.de", 20);
+    Log::writeLog("login startet.");
+
+    UpdateProgressbar("Baue eine Verbindung mit Zeit.de auf.", 20);
 
     string readBuffer;
     CURLcode res;
@@ -95,14 +98,14 @@ bool DieZeit::login(const string &Username, const string &Pass)
             found = readBuffer.find("notification__header--error");
             if (found != std::string::npos)
             {
-                Message(ICON_ERROR, "Fehler", "Kombination aus Benutzernamen und Passwort ist nicht korrekt", 1200);
+                Message(ICON_ERROR, "Fehler", "Kombination aus Benutzernamen und Passwort ist nicht korrekt.", 1200);
                 return false;
             }
 
             this->setUsername(Username);
             this->setPassword(Pass);
             _loggedIn = true;
-            UpdateProgressbar("Herunterladen der Ausgabeninformationen", 50);
+            UpdateProgressbar("Lade Ausgabeninformationen herunter.", 50);
 
             if (!getCurrentIssues(readBuffer))
                 return false;
@@ -110,7 +113,7 @@ bool DieZeit::login(const string &Username, const string &Pass)
                 return false;
             getLocalFiles();
             updateActualizationDate();
-            UpdateProgressbar("Speichere Daten", 99);
+            UpdateProgressbar("Speichere Ausgabeninformationen lokal ab.", 99);
             saveIssuesToFile();
             return true;
         }
@@ -205,6 +208,7 @@ string DieZeit::getPassword()
 
 bool DieZeit::getCurrentIssues(string &htmlpage)
 {
+    Log::writeLog("get current isseues");
     std::size_t found;
     //tm releaseDate;
     string contentUrl;
@@ -265,15 +269,16 @@ bool DieZeit::getIssuesInformation()
     for (auto i = 0; i < _items->size(); i++)
     {
         progress = progress + i;
-        UpdateProgressbar("Herunterladen der Ausgabeninformationen", progress);
+        UpdateProgressbar("Lade die Ausgabeninformationen herunter.", progress);
 
         if (_items->at(i).getState() == FileState::ICLOUD)
         {
+            Log::writeLog("getting udpate" + _items->at(i).getTitle());
             if (!_items->at(i).getInformation())
                 return false;
         }
     }
-    UpdateProgressbar("Herunterladen der Ausgabeninformationen abgeschlossen", 95);
+    UpdateProgressbar("Herunterladen der Ausgabeninformationen abgeschlossen.", 95);
 
     return true;
 }

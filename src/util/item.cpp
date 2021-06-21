@@ -10,6 +10,7 @@
 #include "inkview.h"
 #include "util.h"
 #include "dieZeit.h"
+#include "log.h"
 
 #include <iostream>
 #include <string>
@@ -20,7 +21,7 @@
 using namespace std;
 
 //Item::Item(const string &title, const string &contentUrl, const tm &releaseDate): _title(title), _contentUrl(contentUrl), _releaseDate(releaseDate)
-Item::Item(const string &title, const string &contentUrl): _title(title), _contentUrl(contentUrl)
+Item::Item(const string &title, const string &contentUrl) : _title(title), _contentUrl(contentUrl)
 {
     string tmp = title;
     replace(tmp.begin(), tmp.end(), '/', '_');
@@ -113,6 +114,8 @@ bool Item::getInformation()
     if (!Util::connectToNetwork())
         return false;
 
+    Log::writeLog(_contentUrl);
+
     std::string readBuffer;
     CURLcode res;
     CURL *curl = curl_easy_init();
@@ -164,7 +167,7 @@ bool Item::download()
         return false;
     }
 
-    UpdateProgressbar("Versuche Verbindung mit dem Internet herzustellen", 0);
+    UpdateProgressbar("Versuche eine Verbindung mit dem Internet herzustellen.", 0);
 
     if (!Util::connectToNetwork())
     {
@@ -175,6 +178,8 @@ bool Item::download()
     CURLcode res;
 
     CURL *curl = curl_easy_init();
+
+    Log::writeLog(_downloadPath);
 
     if (curl)
     {

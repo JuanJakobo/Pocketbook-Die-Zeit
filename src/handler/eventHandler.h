@@ -16,6 +16,9 @@
 
 #include <memory>
 
+const std::string LOG_PATH = "/mnt/ext1/system/config/dieZeit";
+const std::string SETTINGS_PATH = LOG_PATH + "/settings.cfg";
+
 class EventHandler
 {
 public:
@@ -35,7 +38,7 @@ public:
     int eventDistributor(int type, int par1, int par2);
 
     static void DialogHandlerStatic(int Button);
-    
+
 private:
     static std::unique_ptr<EventHandler> _eventHandlerStatic;
     std::unique_ptr<ListView> _listView;

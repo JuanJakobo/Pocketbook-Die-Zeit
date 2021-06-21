@@ -58,7 +58,6 @@ private:
     string _title;
     string _contentUrl;
     string _downloadPath;
-    //tm _releaseDate; //TODO include default
     FileState _state{FileState::ICLOUD};
     string _localPath{""};
 };

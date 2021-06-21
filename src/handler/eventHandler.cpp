@@ -72,10 +72,14 @@ void EventHandler::mainMenuHandler(int index)
         if (_dieZeit.login())
         {
             FillAreaRect(_menu.getContentRect(), WHITE);
+            CloseProgressbar();
             _listView.reset(new ListView(_menu.getContentRect(), _dieZeit.getItems()));
             FullUpdate();
         }
-        CloseProgressbar();
+        else
+        {
+            CloseProgressbar();
+        }
         break;
     //Logout
     case 103:
@@ -84,7 +88,11 @@ void EventHandler::mainMenuHandler(int index)
         switch (dialogResult)
         {
         case 1:
+            OpenProgressbar(ICON_INFORMATION, "Information", "Die Ausgaben werden entfernt.", 0, EventHandler::DialogHandlerStatic);
+
             _dieZeit.logout(true);
+
+            CloseProgressbar();
             break;
         case 3:
             return;
