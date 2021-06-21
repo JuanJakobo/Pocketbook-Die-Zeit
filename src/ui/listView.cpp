@@ -24,9 +24,6 @@ ListView::ListView(const irect *contentRect, const std::shared_ptr<vector<Item>>
 {
     FillAreaRect(_contentRect, WHITE);
 
-    _titleFont = std::unique_ptr<ifont>(OpenFont("LiberationMono", 35, 1));
-    _footerFont = std::unique_ptr<ifont>(OpenFont("LiberationMono", 30, 1));
-
     _entries.clear();
 
     int entrySize = _contentRect->h / (_itemCount + 1);
@@ -67,7 +64,6 @@ ListView::ListView(const irect *contentRect, const std::shared_ptr<vector<Item>>
 
     _pageIcon = iRect(_contentRect->w - 100, _contentRect->h + _contentRect->y - _footerHeight, 100, _footerHeight, ALIGN_CENTER);
 
-    //TODO draw botton back and next, draw just once?
     _firstPageButton = iRect(_contentRect->x, _contentRect->h + _contentRect->y - _footerHeight, 130, _footerHeight, ALIGN_CENTER);
     _lastPageButton = iRect(_contentRect->x + 150, _contentRect->h + _contentRect->y - _footerHeight, 130, _footerHeight, ALIGN_CENTER);
     _nextPageButton = iRect(_contentRect->x + 300, _contentRect->h + _contentRect->y - _footerHeight, 130, _footerHeight, ALIGN_CENTER);
@@ -75,12 +71,19 @@ ListView::ListView(const irect *contentRect, const std::shared_ptr<vector<Item>>
     drawEntries();
     drawFooter();
     drawHeader("Letzte Aktualisierung:" + Util::readStringSetting("LastActualisation"));
+}
 
+ListView::~ListView()
+{
+    CloseFont(_entryFont);
+    CloseFont(_entryFontBold);
+    CloseFont(_headerFont);
+    CloseFont(_footerFont);
 }
 
 void ListView::drawHeader(string headerText)
 {
-    SetFont(_titleFont.get(), BLACK);
+    SetFont(_headerFont, BLACK);
     DrawTextRect(_contentRect->x, _contentRect->y, _contentRect->w, _headerHeight - 1, headerText.c_str(), ALIGN_LEFT);
 
     int line = (_contentRect->y + _headerHeight) - 2;
@@ -89,6 +92,7 @@ void ListView::drawHeader(string headerText)
 
 void ListView::drawFooter()
 {
+    SetFont(_footerFont, WHITE);
     string footer = std::to_string(_shownPage) + "/" + std::to_string(_page);
     FillAreaRect(&_pageIcon, BLACK);
 
@@ -96,15 +100,15 @@ void ListView::drawFooter()
     FillAreaRect(&_firstPageButton, BLACK);
     DrawTextRect2(&_firstPageButton, "Seite 1");
     FillAreaRect(&_lastPageButton, BLACK);
-    DrawTextRect2(&_lastPageButton, "Letzte");
+    DrawTextRect2(&_lastPageButton, "Zurück");
     FillAreaRect(&_nextPageButton, BLACK);
-    DrawTextRect2(&_nextPageButton, "Nächste");
+    DrawTextRect2(&_nextPageButton, "Vor");
 }
 
 void ListView::drawEntry(int itemID)
 {
     FillAreaRect(_entries[itemID].getPosition(), WHITE);
-    _entries[itemID].draw(_items->at(itemID));
+    _entries[itemID].draw(_items->at(itemID), _entryFont, _entryFontBold, _entryFontHeight);
 }
 
 void ListView::drawEntries()
@@ -112,7 +116,7 @@ void ListView::drawEntries()
     for (auto i = 0; i < _entries.size(); i++)
     {
         if (_entries[i].getPage() == _shownPage)
-            _entries[i].draw(_items->at(i));
+            _entries[i].draw(_items->at(i), _entryFont, _entryFontBold, _entryFontHeight);
     }
 }
 

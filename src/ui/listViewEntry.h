@@ -32,15 +32,14 @@ public:
         * draws the listViewEntry to the screen
         * 
         * @param item item that shall be drawn
+        * @param entryFont font for the entry itself
+        * @param entryFontBold bold font for the header
+        * @param fontHeight height of the font 
         */
-    void draw(const Item &item);
+    void draw(const Item &item, ifont *entryFont, ifont *entryFontBold, int fontHeight);
 
 private:
     int _page;
-    //TODO in central class?
-    int _fontHeight = 30;
-    std::unique_ptr<ifont> _entryFont = std::unique_ptr<ifont>(OpenFont("LiberationMono", _fontHeight, 1));;
-    std::unique_ptr<ifont> _entryFontBold = std::unique_ptr<ifont>(OpenFont("LiberationMono-Bold", _fontHeight, 1));
     irect _position;
 };
 #endif

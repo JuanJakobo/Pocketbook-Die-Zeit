@@ -17,20 +17,20 @@ ListViewEntry::ListViewEntry(int page, irect rect) : _page(page), _position(rect
 {
 }
 
-void ListViewEntry::draw(const Item &item)
+void ListViewEntry::draw(const Item &item, ifont *entryFont, ifont *entryFontBold, int fontHeight)
 {
-    SetFont(_entryFontBold.get(), BLACK);
-    DrawTextRect(_position.x, _position.y, _position.w, _fontHeight, item.getTitle().c_str(), ALIGN_LEFT);
+    SetFont(entryFontBold, BLACK);
+    DrawTextRect(_position.x, _position.y, _position.w, fontHeight, item.getTitle().c_str(), ALIGN_LEFT);
 
-    SetFont(_entryFont.get(), BLACK);
+    SetFont(entryFont, BLACK);
 
     switch (item.getState())
     {
     case FileState::ICLOUD:
-        DrawTextRect(_position.x, _position.y + 3 * _fontHeight, _position.w, _fontHeight, "Klicken um Ausgabe herunterzuladen", ALIGN_RIGHT);
+        DrawTextRect(_position.x, _position.y + 3 * fontHeight, _position.w, fontHeight, "Klicken um Ausgabe herunterzuladen", ALIGN_RIGHT);
         break;
     default:
-        DrawTextRect(_position.x, _position.y + 3 * _fontHeight, _position.w, _fontHeight, "heruntergeladen", ALIGN_RIGHT);
+        DrawTextRect(_position.x, _position.y + 3 * fontHeight, _position.w, fontHeight, "Ausgabe ist heruntergeladen", ALIGN_RIGHT);
         break;
     }
     int line = (_position.y + _position.h) - 1;

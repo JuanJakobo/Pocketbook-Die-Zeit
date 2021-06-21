@@ -84,10 +84,12 @@ private:
     int _footerFontHeight;
     int _entryFontHeight;
     const irect *_contentRect;
-    const std::shared_ptr<vector<Item>> _items =  nullptr;
+    const std::shared_ptr<vector<Item>> _items = nullptr;
     vector<ListViewEntry> _entries;
-    std::unique_ptr<ifont> _titleFont;
-    std::unique_ptr<ifont> _footerFont;
+    ifont *_headerFont;
+    ifont *_footerFont;
+    ifont *_entryFont;
+    ifont *_entryFontBold;
     int _page;
     int _shownPage;
     irect _pageIcon;
