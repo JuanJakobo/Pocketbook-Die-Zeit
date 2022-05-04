@@ -77,10 +77,18 @@ bool DieZeit::login(const string &Username, const string &Pass)
 
     if (curl)
     {
-        string post = "email=" + Username + "&pass=" + Pass;
+        struct curl_slist *slist1;
+
+        slist1 = NULL;
+        slist1 = curl_slist_append(slist1, "Referer: https://meine.zeit.de/anmelden\?url=https%3A//premium.zeit.de/aktion/das-digitale-abo-der-zeit&entry_service=premium");
+        slist1 = curl_slist_append(slist1, "Cookie: csrf_token=test");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist1);
+
+        string post = "email=" + Username + "&pass=" + Pass + "&permanent=on&csrf_token=test";
 
         curl_easy_setopt(curl, CURLOPT_URL, DIEZEIT_LOGIN_URL.c_str());
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post.c_str());
+        curl_easy_setopt(curl, CURLOPT_POST,1L);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS,post.c_str());
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Util::writeCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
@@ -93,33 +101,49 @@ bool DieZeit::login(const string &Username, const string &Pass)
 
         if (res == CURLE_OK)
         {
-            //check if login was successful
-            std::size_t found;
-            found = readBuffer.find("notification__header--error");
-            if (found != std::string::npos)
+            long response_code;
+            curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE,&response_code);
+            switch(response_code)
             {
-                Message(ICON_ERROR, "Fehler", "Kombination aus Benutzernamen und Passwort ist nicht korrekt.", 1200);
-                return false;
+                case 200:
+                    {
+                    //check if login was successful
+                    std::size_t found;
+                    found = readBuffer.find("notification__header--error");
+                    if (found != std::string::npos)
+                    {
+                        Message(ICON_ERROR, "Fehler", "Kombination aus Benutzernamen und Passwort ist nicht korrekt.", 1200);
+                        return false;
+                    }
+
+                    this->setUsername(Username);
+                    this->setPassword(Pass);
+                    _loggedIn = true;
+                    UpdateProgressbar("Lade Ausgabeninformationen herunter.", 50);
+
+                    if (!getCurrentIssues(readBuffer))
+                        return false;
+                    if (!getIssuesInformation())
+                        return false;
+                    getLocalFiles();
+                    updateActualizationDate();
+                    UpdateProgressbar("Speichere Ausgabeninformationen lokal ab.", 99);
+                    saveIssuesToFile();
+                    return true;
+                    }
+                default:
+                    {
+                        Message(ICON_ERROR, "Error", ("An unknown error occured. (Curl Response Code " + std::to_string(response_code) + ")").c_str(), 2000);
+                        Log::writeLog(std::to_string(response_code));
+                    }
             }
-
-            this->setUsername(Username);
-            this->setPassword(Pass);
-            _loggedIn = true;
-            UpdateProgressbar("Lade Ausgabeninformationen herunter.", 50);
-
-            if (!getCurrentIssues(readBuffer))
-                return false;
-            if (!getIssuesInformation())
-                return false;
-            getLocalFiles();
-            updateActualizationDate();
-            UpdateProgressbar("Speichere Ausgabeninformationen lokal ab.", 99);
-            saveIssuesToFile();
-            return true;
+        } else {
+            Log::writeLog(std::to_string(res));
         }
     }
     return false;
 }
+
 
 void DieZeit::logout(bool deleteFiles)
 {
