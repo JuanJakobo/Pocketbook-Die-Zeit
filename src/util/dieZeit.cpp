@@ -121,6 +121,7 @@ bool DieZeit::login(const string &Username, const string &Pass)
                     _loggedIn = true;
                     UpdateProgressbar("Lade Ausgabeninformationen herunter.", 50);
 
+
                     if (!getCurrentIssues(readBuffer))
                         return false;
                     if (!getIssuesInformation())
@@ -264,6 +265,11 @@ bool DieZeit::getCurrentIssues(string &htmlpage)
             found = htmlpage.find("alt=\"");
             htmlpage = htmlpage.substr(found + 5);
             title = htmlpage.substr(0, htmlpage.find("\""));
+            if(title.length() < 10)
+            {
+                //TODO use other number based on previous
+                title = "DIE ZEIT 00/0000";
+            }
 
             //found = htmlpage.find("release-date\">");
             //htmlpage = htmlpage.substr(found + 14);
@@ -279,7 +285,6 @@ bool DieZeit::getCurrentIssues(string &htmlpage)
                 _items->push_back(temp);
         }
     } while (found != std::string::npos);
-
     sort(_items->begin(), _items->end(), std::greater<Item>());
 
     return true;
@@ -295,7 +300,7 @@ bool DieZeit::getIssuesInformation()
 
         if (_items->at(i).getState() == FileState::ICLOUD)
         {
-            Log::writeLog("getting udpate" + _items->at(i).getTitle());
+            Log::writeLog("getting udpate " + _items->at(i).getTitle());
             if (!_items->at(i).getInformation())
                 return false;
         }
