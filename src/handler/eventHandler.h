@@ -37,8 +37,6 @@ public:
         */
     int eventDistributor(int type, int par1, int par2);
 
-    static void DialogHandlerStatic(int Button);
-
 private:
     static std::unique_ptr<EventHandler> _eventHandlerStatic;
     std::unique_ptr<ListView> _listView;

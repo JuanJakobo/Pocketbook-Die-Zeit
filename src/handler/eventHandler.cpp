@@ -51,12 +51,6 @@ int EventHandler::eventDistributor(int type, int par1, int par2)
     return 0;
 }
 
-void EventHandler::DialogHandlerStatic(const int clicked)
-{
-    //TODO cannot interact with it
-    CloseProgressbar();
-}
-
 void EventHandler::mainMenuHandlerStatic(int index)
 {
     _eventHandlerStatic->mainMenuHandler(index);
@@ -68,7 +62,7 @@ void EventHandler::mainMenuHandler(int index)
     {
     //Actualize
     case 102:
-        OpenProgressbar(ICON_INFORMATION, "Aktualiserung", "Start der Aktualisierung", 0, EventHandler::DialogHandlerStatic);
+        OpenProgressbar(ICON_INFORMATION, "Aktualiserung", "Start der Aktualisierung", 0, NULL);
         if (_dieZeit.login())
         {
             FillAreaRect(_menu.getContentRect(), WHITE);
@@ -88,7 +82,7 @@ void EventHandler::mainMenuHandler(int index)
         switch (dialogResult)
         {
         case 1:
-            OpenProgressbar(ICON_INFORMATION, "Information", "Die Ausgaben werden entfernt.", 0, EventHandler::DialogHandlerStatic);
+            OpenProgressbar(ICON_INFORMATION, "Information", "Die Ausgaben werden entfernt.", 0, NULL);
 
             _dieZeit.logout(true);
 
@@ -129,7 +123,7 @@ int EventHandler::pointerHandler(int type, int par1, int par2)
             {
                 if (_dieZeit.getItems()->at(itemID).getState() == FileState::ICLOUD)
                 {
-                    OpenProgressbar(1, "Herunterladen der Ausgabe", "Beginnen des Herunterladens", 0, EventHandler::DialogHandlerStatic);
+                    OpenProgressbar(1, "Herunterladen der Ausgabe", "Beginnen des Herunterladens", 0, NULL);
                     if (!_dieZeit.getItems()->at(itemID).download())
                     {
                         Message(ICON_WARNING, "Warnung", "Die Ausgabe konnte nicht heruntergeladen werden. Bitte versuchen Sie es erneut.", 1200);
@@ -154,7 +148,7 @@ int EventHandler::pointerHandler(int type, int par1, int par2)
                         _dieZeit.getItems()->at(itemID).open();
                         break;
                     case 2:
-                        OpenProgressbar(ICON_INFORMATION, "Information", "Die Ausgabe wird entfernt.", 0, EventHandler::DialogHandlerStatic);
+                        OpenProgressbar(ICON_INFORMATION, "Information", "Die Ausgabe wird entfernt.", 0, NULL);
                         if (!_dieZeit.getItems()->at(itemID).removeFile())
                             Message(ICON_WARNING, "Warnung", "Die Ausgabe konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.", 1200);
                         if (_dieZeit.getItems()->at(itemID).getDownloadPath().empty())
@@ -182,7 +176,7 @@ int EventHandler::pointerHandler(int type, int par1, int par2)
         {
             if (_loginView->logginClicked(par1, par2) == 2)
             {
-                OpenProgressbar(ICON_INFORMATION, "Login", "Start der Logins", 0, EventHandler::DialogHandlerStatic);
+                OpenProgressbar(ICON_INFORMATION, "Login", "Start der Logins", 0, NULL);
 
                 if (_dieZeit.login(_loginView->getUsername(), _loginView->getPassword()))
                 {
